@@ -44,6 +44,11 @@ data model is shaped around protecting it:
 > **Prefer to self-host?** To avoid egress caps and keep full control of the data,
 > run the Supabase stack on your own server — see [`self-hosting/README.md`](./self-hosting/README.md).
 > The app is identical either way; only the `NEXT_PUBLIC_SUPABASE_URL` differs.
+>
+> **All-in-one on a UK server:** to keep every bit of compute and data in the UK
+> (no US transfer, no egress caps, ~£7–10/mo), deploy the app *and* Supabase on a
+> single UK VPS with Coolify — see [`deploy/coolify.md`](./deploy/coolify.md). A
+> production `Dockerfile` (Next.js standalone) is included for any container host.
 
 ### 1. Create the Supabase project
 

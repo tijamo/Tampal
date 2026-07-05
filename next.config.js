@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Emit a self-contained server bundle (.next/standalone) for the Docker image
+  // used by Coolify / any container host. Ignored by adapters like Netlify.
+  output: 'standalone',
   async headers() {
     // Allow the browser to reach the Supabase API, whether it's Supabase Cloud
     // (*.supabase.co) or a self-hosted instance on a custom domain. We derive the
