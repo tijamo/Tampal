@@ -1,0 +1,66 @@
+// Hand-written types mirroring the Supabase schema (supabase/migrations).
+// Regenerate with `supabase gen types typescript` once the CLI is set up.
+
+export type Role = 'admin' | 'member';
+export type PersonType = 'member' | 'visitor';
+export type Recurrence = 'none' | 'weekly' | 'monthly' | 'annually';
+export type ConsentType = 'attendance_records' | 'contact_storage';
+
+export interface Person {
+  id: string;
+  full_name: string;
+  person_type: PersonType;
+  email: string | null;
+  phone: string | null;
+  address_line1: string | null;
+  address_line2: string | null;
+  city: string | null;
+  postcode: string | null;
+  notes: string | null;
+  created_at: string;
+  created_by: string | null;
+  deleted_at: string | null;
+}
+
+export interface Profile {
+  user_id: string;
+  person_id: string | null;
+  role: Role;
+  created_at: string;
+}
+
+export interface Meeting {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  starts_at: string; // timestamptz of the first occurrence
+  duration_minutes: number;
+  recurrence: Recurrence;
+  recurrence_until: string | null; // date
+  created_by: string | null;
+  archived: boolean;
+  created_at: string;
+}
+
+export interface Attendance {
+  id: string;
+  meeting_id: string;
+  occurrence_date: string; // date
+  person_id: string;
+  present: boolean;
+  recorded_by: string | null;
+  recorded_at: string;
+}
+
+export interface Consent {
+  id: string;
+  person_id: string;
+  consent_type: ConsentType;
+  granted: boolean;
+  version: string;
+  granted_at: string | null;
+  withdrawn_at: string | null;
+  captured_by: string | null;
+  created_at: string;
+}
