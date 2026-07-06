@@ -1,11 +1,13 @@
 #!/bin/bash
 # =============================================================================
 # Runs once, on an empty Postgres data volume, before the other services start.
-# Creates the standard Supabase roles with the password the services use, and
-# installs the `auth.jwt()` helper. auth.uid()/auth.role()/auth.email() are
-# deliberately left to GoTrue's own bootstrap migration to create (see the
-# note below) so ownership doesn't conflict. Idempotent and defensive: the
-# supabase/postgres image may already create some of these.
+# Creates the standard Supabase roles with the password the services use.
+# Deliberately creates NONE of the auth.uid()/role()/email()/jwt() helper
+# functions -- GoTrue's own bootstrap migrations create and own ALL FOUR
+# across several of its migration files (see the note below), and every one
+# we pre-created here ourselves collided with GoTrue's CREATE OR REPLACE.
+# Idempotent and defensive: the supabase/postgres image may already create
+# some of the roles below.
 #
 # The app's own tables are applied later by ../../migrate.sh, AFTER GoTrue has
 # created auth.users at runtime (our triggers reference it).
@@ -45,7 +47,7 @@ psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
   -- authenticator can switch into the request roles (PostgREST relies on this).
   GRANT anon, authenticated, service_role TO authenticator;
 
-  -- ---- auth schema + JWT claim helpers ------------------------------------
+  -- ---- auth schema ---------------------------------------------------------
   CREATE SCHEMA IF NOT EXISTS auth AUTHORIZATION supabase_auth_admin;
   GRANT USAGE ON SCHEMA auth TO anon, authenticated, service_role;
 
@@ -56,27 +58,16 @@ psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
   -- has no privileges -> "permission denied for schema public".
   ALTER ROLE supabase_auth_admin SET search_path = auth;
 
-  -- NOTE: auth.uid(), auth.role() and auth.email() are deliberately NOT
-  -- created here. GoTrue's own bootstrap migration
-  -- (20211124214934_update_auth_functions.up.sql) creates functionally-
-  -- identical versions of ALL THREE in one migration -- and it does so AS
-  -- supabase_auth_admin. If we pre-create ANY of them here (as postgres),
-  -- GoTrue's CREATE OR REPLACE fails with "must be owner of function X":
-  -- replacing a function requires being ITS owner, not just having rights on
-  -- the schema -- and since all three are replaced in a single migration
-  -- transaction, one ownership conflict rolls back all three. Our own app
-  -- migrations only ever call auth.uid(), which by the time they run
-  -- (../../migrate.sh, after the stack is healthy) GoTrue has already created.
-  CREATE OR REPLACE FUNCTION auth.jwt() RETURNS jsonb
-    LANGUAGE sql STABLE AS \$\$
-      SELECT coalesce(
-        nullif(current_setting('request.jwt.claim', true), ''),
-        nullif(current_setting('request.jwt.claims', true), '')
-      )::jsonb;
-  \$\$;
-
-  GRANT EXECUTE ON FUNCTION auth.jwt()
-    TO anon, authenticated, service_role;
+  -- NOTE: auth.uid(), auth.role(), auth.email() and auth.jwt() are
+  -- deliberately NOT created here -- not even auth.jwt(), which we tried
+  -- keeping once and it too turned out to be owned by a GoTrue migration
+  -- (20220531120530_add_auth_jwt_function.up.sql). GoTrue's bootstrap
+  -- migrations create and own all four, running AS supabase_auth_admin; any
+  -- one we pre-create ourselves (as postgres) breaks GoTrue's CREATE OR
+  -- REPLACE with "must be owner of function X", rolling back that whole
+  -- migration. Our own app migrations only ever call auth.uid(), which by
+  -- the time they run (../../migrate.sh, after the stack is healthy) GoTrue
+  -- has already created.
 
   -- Sensible default privileges so PostgREST roles can use the public schema.
   GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
