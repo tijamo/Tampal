@@ -2,9 +2,10 @@
 # =============================================================================
 # Runs once, on an empty Postgres data volume, before the other services start.
 # Creates the standard Supabase roles with the password the services use, and
-# installs the `auth` schema helper functions (auth.uid/role/jwt) that our app
-# migrations depend on. Idempotent and defensive: the supabase/postgres image
-# may already create some of these.
+# installs the `auth.jwt()`/`auth.email()` helpers. auth.uid()/auth.role() are
+# deliberately left to GoTrue's own bootstrap migration to create (see the
+# note below) so ownership doesn't conflict. Idempotent and defensive: the
+# supabase/postgres image may already create some of these.
 #
 # The app's own tables are applied later by ../../migrate.sh, AFTER GoTrue has
 # created auth.users at runtime (our triggers reference it).
@@ -55,28 +56,21 @@ psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
   -- has no privileges -> "permission denied for schema public".
   ALTER ROLE supabase_auth_admin SET search_path = auth;
 
+  -- NOTE: auth.uid() and auth.role() are deliberately NOT created here.
+  -- GoTrue's own bootstrap migration creates functionally-identical versions
+  -- of both (as part of its "00_init_auth_schema" migration, run later at
+  -- container start) -- and it does so AS supabase_auth_admin. If we
+  -- pre-created them here (as postgres), GoTrue's CREATE OR REPLACE would
+  -- fail with "must be owner of function uid": replacing a function requires
+  -- being ITS owner, not just having rights on the schema. Our own app
+  -- migrations only ever call auth.uid(), which by the time they run
+  -- (../../migrate.sh, after the stack is healthy) GoTrue has already created.
   CREATE OR REPLACE FUNCTION auth.jwt() RETURNS jsonb
     LANGUAGE sql STABLE AS \$\$
       SELECT coalesce(
         nullif(current_setting('request.jwt.claim', true), ''),
         nullif(current_setting('request.jwt.claims', true), '')
       )::jsonb;
-  \$\$;
-
-  CREATE OR REPLACE FUNCTION auth.uid() RETURNS uuid
-    LANGUAGE sql STABLE AS \$\$
-      SELECT coalesce(
-        nullif(current_setting('request.jwt.claim.sub', true), ''),
-        (auth.jwt() ->> 'sub')
-      )::uuid;
-  \$\$;
-
-  CREATE OR REPLACE FUNCTION auth.role() RETURNS text
-    LANGUAGE sql STABLE AS \$\$
-      SELECT coalesce(
-        nullif(current_setting('request.jwt.claim.role', true), ''),
-        (auth.jwt() ->> 'role')
-      )::text;
   \$\$;
 
   CREATE OR REPLACE FUNCTION auth.email() RETURNS text
@@ -87,7 +81,7 @@ psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
       )::text;
   \$\$;
 
-  GRANT EXECUTE ON FUNCTION auth.jwt(), auth.uid(), auth.role(), auth.email()
+  GRANT EXECUTE ON FUNCTION auth.jwt(), auth.email()
     TO anon, authenticated, service_role;
 
   -- Sensible default privileges so PostgREST roles can use the public schema.
