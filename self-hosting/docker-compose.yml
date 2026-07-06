@@ -57,6 +57,12 @@ services:
       API_EXTERNAL_URL: ${API_EXTERNAL_URL}
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@db:5432/postgres
+      # Without this, GoTrue creates its tables (schema_migrations, users, ...)
+      # in the "public" schema by default — but supabase_auth_admin only owns
+      # the "auth" schema (see db/init/00-init.sh), causing
+      # "permission denied for schema public". Every RLS policy and trigger in
+      # our own migrations also assumes auth.users lives in the auth schema.
+      GOTRUE_DB_NAMESPACE: auth
       GOTRUE_SITE_URL: ${SITE_URL}
       GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
@@ -112,12 +118,15 @@ services:
     # NOTE: every $ below is doubled ($$) because Compose itself interpolates
     # $VAR in compose-file strings before the container ever sees them; $$ is
     # how you get a literal single $ through to the container's shell.
-    entrypoint: >
-      bash -c '
-      sed -e "s|\$$SUPABASE_ANON_KEY|$$SUPABASE_ANON_KEY|g"
-          -e "s|\$$SUPABASE_SERVICE_KEY|$$SUPABASE_SERVICE_KEY|g"
-          /home/kong/kong.yml.template > /home/kong/kong.yml
-      && /docker-entrypoint.sh kong docker-start'
+    #
+    # This MUST be one physical line (or a YAML list with one string per exec
+    # arg) — a folded (">") block scalar with mixed indentation previously
+    # inserted an unintended line break mid-command, splitting it into
+    # fragments that bash then tried to run as separate, broken commands.
+    entrypoint:
+      - bash
+      - -c
+      - 'sed -e "s|\$$SUPABASE_ANON_KEY|$$SUPABASE_ANON_KEY|g" -e "s|\$$SUPABASE_SERVICE_KEY|$$SUPABASE_SERVICE_KEY|g" /home/kong/kong.yml.template > /home/kong/kong.yml && /docker-entrypoint.sh kong docker-start'
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
