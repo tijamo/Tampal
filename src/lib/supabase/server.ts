@@ -34,7 +34,8 @@ export function createClient() {
       // this, a Server Component's Supabase queries can be served stale by the
       // Data Cache instead of re-checking RLS-gated, per-user data on refresh.
       global: {
-        fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' }),
+        fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+          fetch(input, { ...init, cache: 'no-store' }),
       },
     },
   );

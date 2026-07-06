@@ -15,7 +15,8 @@ export function createAdminClient() {
     // Next.js patches global fetch to cache GET requests by default; disable
     // that so admin reads (invites, GDPR export/erasure) are never stale.
     global: {
-      fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' }),
+      fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+        fetch(input, { ...init, cache: 'no-store' }),
     },
   });
 }
