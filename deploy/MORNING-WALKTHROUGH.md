@@ -69,8 +69,13 @@ directly in Steps 5 and 7. (Ask Claude to make the repo public first.)
    **Private Repository (with Deploy Key)**).
 2. Repository: `https://github.com/tijamo/tampal`  ·  Branch:
    `claude/tamfam-church-pwa-ixtasz`.
-3. **Build Pack → Docker Compose.**  Compose file location:
-   `/self-hosting/docker-compose.yml`.
+3. **Build Pack → Docker Compose.** Set **both** of these (Coolify resolves the
+   compose file's relative paths — `build: ./db`, `build: ./kong` — against
+   **Base Directory**, not against the compose file's own folder, so both must
+   point inside `self-hosting/`):
+   - **Base Directory:** `/self-hosting`
+   - **Docker Compose Location:** `/docker-compose.yml` (relative to Base
+     Directory above — not `/self-hosting/docker-compose.yml`)
 4. **Environment variables** — paste these (fill the 4 secrets from Step 1):
 
    ```

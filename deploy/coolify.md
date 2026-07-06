@@ -53,8 +53,14 @@ Keep this output — you'll paste values into both resources below.
 
 ## 4. Deploy the Supabase backend (Docker Compose resource)
 
-1. In Coolify: **＋ New Resource → Docker Compose**, connect this Git repo, and set
-   the compose path to `self-hosting/docker-compose.yml`.
+1. In Coolify: **＋ New Resource → Docker Compose**, connect this Git repo. Set
+   **both** of the following — Coolify resolves the compose file's relative build
+   paths (`build: ./db`, `build: ./kong`) against **Base Directory**, not against
+   the folder the compose file lives in, so both must point inside `self-hosting/`
+   or the build fails with `path ".../db" not found`:
+   - **Base Directory:** `/self-hosting`
+   - **Docker Compose Location:** `/docker-compose.yml` (relative to Base
+     Directory above — not `/self-hosting/docker-compose.yml`)
 2. Add the environment variables from `self-hosting/.env.example` — set
    `POSTGRES_PASSWORD`, the generated `JWT_SECRET` / `ANON_KEY` /
    `SERVICE_ROLE_KEY`, `API_EXTERNAL_URL=https://api.tamfam.example`,
