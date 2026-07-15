@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+build
+.git
+.github
+npm-debug.log*
+.env
+.env*.local
+coverage
+__tests__
+*.tsbuildinfo
+# The Supabase backend is deployed separately (see deploy/coolify.md); it does
+# not belong in the app image.
+self-hosting
