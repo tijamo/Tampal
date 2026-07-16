@@ -66,6 +66,14 @@ and Data (Use and Access) Act 2025 compliant, and WCAG 2.2 AA accessible.
    `admin` role on another user, replacing the manual-SQL bootstrap step for
    everyone after the first admin.
 
+## Status snapshot (2026-07-16)
+
+Phases 1 and 2 are fully shipped. Phase 3 housekeeping is mostly done: test
+coverage expansion (item 9) and type regeneration (item 10) are blocked on
+a live Supabase/Postgres instance, which isn't available in this
+environment; the self-hosted deploy path review (item 11) is complete.
+Working tree is clean at v0.1.10 on `main`.
+
 ## Roadmap
 
 ### Phase 1 — Core requirements from the product brief — ✅ DONE (v0.1.3)
