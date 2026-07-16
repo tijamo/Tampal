@@ -137,21 +137,43 @@ above for where each lives. `npm run typecheck`, `npm run lint`, and
      substitutes for.
 
 ### Phase 3 — Housekeeping (lower priority, do opportunistically)
-9. Expand test coverage: RLS-backed CRUD flows, invite flow, consent logic,
-   offline queue/sync — currently only `recurrence.test.ts` and
-   `a11y.test.tsx` exist.
+9. 🟡 **Expand test coverage** (v0.1.9, partial)
+   - Done: extracted the duplicated `latestConsent` helper into
+     `src/lib/consent.ts` with unit tests (`consent.test.ts`); added
+     `offline-queue.test.ts` (dedupe-by-key, dequeue) using `fake-indexeddb`
+     (new devDependency — jsdom has no native IndexedDB); added
+     `attendance-sync.test.ts` covering the offline/empty/success/retry
+     paths of `flushAttendanceQueue` with mocked Supabase client + queue;
+     added `people-actions.test.ts` covering `invitePerson` (missing email,
+     metadata payload, "already registered" error mapping) and
+     `setUserRole` (self-demotion guard) with mocked `requireAdmin` /
+     Supabase clients. `jest.setup.ts` gained a `structuredClone` polyfill
+     (via `node:v8` (de)serialize) that `fake-indexeddb` needs but
+     `jest-environment-jsdom` doesn't provide.
+   - Not done, and needs a real environment to do properly: **RLS-backed
+     CRUD flows**. This needs an actual running Postgres/Supabase instance
+     (e.g. `supabase start`, which needs Docker image pulls) to be a
+     meaningful test — the RLS policies themselves are what's under test,
+     and mocking the Supabase client can't exercise real Postgres policy
+     evaluation. The `supabase` CLI isn't installed in this environment.
+     Revisit with `supabase test db` (pgTAP) or a CI job that runs a local
+     Supabase stack.
 10. Regenerate `src/lib/supabase/types.ts` via `supabase gen types
-    typescript` instead of hand-maintaining it.
+    typescript` instead of hand-maintaining it. Blocked here too: needs
+    either a linked Supabase project or a local stack, neither available in
+    this environment/session.
 11. Revisit self-hosted Supabase/Coolify deploy path hardening given the
     history of Kong/auth/schema-permission fix commits.
 
 ## Files most relevant to Phase 3
 
-- `__tests__/a11y.test.tsx`, `__tests__/recurrence.test.ts` — only existing
-  test coverage; item 9 extends this to RLS-backed flows, invite flow,
-  consent logic, offline queue/sync.
+- `__tests__/*.test.ts(x)` — six suites now (`a11y`, `recurrence`,
+  `consent`, `offline-queue`, `attendance-sync`, `people-actions`); item 9's
+  remaining piece (RLS-backed CRUD) needs a running Supabase stack, not
+  more `__tests__` files.
 - `src/lib/supabase/types.ts` — hand-maintained today; item 10 replaces it
-  with `supabase gen types typescript` output.
+  with `supabase gen types typescript` output, once there's a project to
+  generate against.
 - `self-hosting/` — Coolify/Kong deploy path; item 11.
 
 ## Verification checklist (per phase)

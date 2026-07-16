@@ -7,17 +7,10 @@ import { ToggleSwitch } from '@/components/toggle-switch';
 import { ErasePerson } from '@/components/erase-person';
 import { InvitePerson } from '@/components/invite-person';
 import { setConsent, setUserRole } from '../actions';
-import type { Person, Consent, ConsentType, Profile } from '@/lib/supabase/types';
+import { latestConsent } from '@/lib/consent';
+import type { Person, Consent, Profile } from '@/lib/supabase/types';
 
 export const metadata: Metadata = { title: 'Person' };
-
-/** Latest consent decision per type wins (consents are append-only). */
-function latestConsent(consents: Consent[], type: ConsentType): boolean {
-  const rows = consents
-    .filter((c) => c.consent_type === type)
-    .sort((a, b) => b.created_at.localeCompare(a.created_at));
-  return rows[0]?.granted ?? false;
-}
 
 export default async function PersonDetailPage({ params }: { params: { id: string } }) {
   const { userId } = await requireAdmin();

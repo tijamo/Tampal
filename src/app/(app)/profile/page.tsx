@@ -5,16 +5,10 @@ import { PageHeading, Card, Banner } from '@/components/ui';
 import { ProfileForm } from '@/components/profile-form';
 import { ToggleSwitch } from '@/components/toggle-switch';
 import { setOwnDirectoryConsent } from './actions';
-import type { Person, Consent, ConsentType } from '@/lib/supabase/types';
+import { latestConsent } from '@/lib/consent';
+import type { Person, Consent } from '@/lib/supabase/types';
 
 export const metadata: Metadata = { title: 'My profile' };
-
-function latestConsent(consents: Consent[], type: ConsentType): boolean {
-  const rows = consents
-    .filter((c) => c.consent_type === type)
-    .sort((a, b) => b.created_at.localeCompare(a.created_at));
-  return rows[0]?.granted ?? false;
-}
 
 export default async function ProfilePage() {
   const { profile } = await requireSession();
