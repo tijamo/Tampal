@@ -60,16 +60,20 @@ export function InstallPrompt() {
   if (dismissed || (!deferredPrompt && !showIosTip)) return null;
 
   return (
+    // Deliberately in normal document flow, not `fixed` -- a floating
+    // overlay can end up sitting on top of focused page content with no way
+    // for the browser's focus-scroll to route around it (WCAG 2.2 2.4.11
+    // Focus Not Obscured). A top banner just pushes content down instead.
     <div
       role="status"
-      className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-50 mx-auto flex w-[min(26rem,92vw)] items-start gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-lg sm:bottom-4 dark:border-slate-700 dark:bg-slate-900"
+      className="flex flex-col items-start gap-2 border-b border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900 sm:flex-row sm:items-center dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
     >
-      <p className="flex-1 text-sm">
+      <p className="flex-1">
         {deferredPrompt
           ? 'Install TamFam on this device for quick, offline-ready access.'
           : 'Install TamFam: tap the Share icon, then "Add to Home Screen".'}
       </p>
-      <div className="flex shrink-0 flex-col gap-2">
+      <div className="flex shrink-0 gap-2">
         {deferredPrompt && (
           <Button variant="primary" className="px-3 py-1.5 text-sm" onClick={install}>
             Install

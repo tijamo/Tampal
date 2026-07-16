@@ -71,8 +71,14 @@ export default function PrivacyPage() {
             </li>
             <li>Every change to your data is recorded in an internal audit log.</li>
             <li>
-              We use only strictly-necessary cookies to keep you signed in. We use no analytics
-              or advertising trackers, so no cookie consent banner is needed.
+              We use only strictly-necessary cookies and local storage to keep you signed in and
+              remember your own choices in the app (for example, dismissing the install prompt).
+              We use no analytics or advertising trackers, so no cookie consent banner is needed.
+            </li>
+            <li>
+              To send you sign-in links and invitations, we use an email delivery provider
+              (Brevo, an EU-based company) as a data processor. They see only your name and email
+              address, solely to deliver that email, and never for marketing.
             </li>
           </ul>
         </Section>

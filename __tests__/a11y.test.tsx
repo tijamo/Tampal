@@ -3,6 +3,7 @@ import { axe } from 'jest-axe';
 import { Field, Button, Banner, Card, PageHeading } from '@/components/ui';
 import { ToggleSwitch } from '@/components/toggle-switch';
 import { BottomNav } from '@/components/bottom-nav';
+import { InstallPrompt } from '@/components/install-prompt';
 
 jest.mock('next/navigation', () => ({ usePathname: () => '/' }));
 
@@ -53,6 +54,22 @@ describe('accessibility (jest-axe)', () => {
     const { container, rerender } = render(<BottomNav isAdmin={false} />);
     expect(await axe(container)).toHaveNoViolations();
     rerender(<BottomNav isAdmin={true} />);
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('the install prompt (iOS instructions variant) has no violations', async () => {
+    localStorage.clear();
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: () => ({ matches: false }),
+    });
+    Object.defineProperty(window.navigator, 'userAgent', {
+      configurable: true,
+      value: 'iPhone',
+    });
+
+    const { container, findByRole } = render(<InstallPrompt />);
+    await findByRole('status');
     expect(await axe(container)).toHaveNoViolations();
   });
 });

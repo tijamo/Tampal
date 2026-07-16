@@ -157,6 +157,32 @@ above for where each lives. `npm run typecheck`, `npm run lint`, and
      pass is still recommended before release — not something this audit
      substitutes for.
 
+9. ✅ **Post-v0.2.0 compliance re-check** (v0.2.1) — prompted by the Poppins/
+   colour rebrand, mobile bottom nav, install prompt, and Brevo SMTP switch.
+   - Poppins is loaded via `next/font/google`, which self-hosts the font
+     files at build time (no runtime request to Google's CDN) — no PECR
+     implication, unlike a traditional `<link>` to fonts.googleapis.com.
+   - Colour swap only changed hex values within the existing `brand` scale
+     structure; contrast ratios re-verified (all exceed the existing AA
+     minimums) and `jest-axe` still passes.
+   - Found and fixed: `InstallPrompt` was `position: fixed`, which can leave
+     a keyboard-focused element on the page entirely hidden behind it (WCAG
+     2.2's new 2.4.11 Focus Not Obscured) since native focus-scrolling can't
+     route around an overlapping fixed sibling. Changed to a normal-flow top
+     banner instead — pushes content down, never overlaps it.
+   - Found and fixed: the privacy notice didn't disclose Brevo (the new
+     SMTP/email-delivery provider) as a data processor, or that dismissing
+     the install prompt uses local storage. Both added to `/privacy`'s "How
+     we protect it" section.
+   - `BottomNav`/`InstallPrompt` touch targets and text contrast checked
+     directly (all comfortably exceed AA minimums); added `a11y.test.tsx`
+     coverage for both. `npm run typecheck`, `npm run lint`, `npm test`
+     (31/31), and `npm run build` all pass.
+   - Not verified: real-device visual confirmation that the bottom nav's
+     reserved space (`pb-[5rem+safe-area]`) fully clears its rendered
+     height on every phone — reasoned from CSS, not screenshotted, since
+     this app requires an authenticated session this sandbox can't reach.
+
 ### Phase 3 — Housekeeping (lower priority, do opportunistically)
 9. 🟡 **Expand test coverage** (v0.1.9, partial)
    - Done: extracted the duplicated `latestConsent` helper into

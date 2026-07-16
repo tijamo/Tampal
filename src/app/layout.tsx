@@ -51,9 +51,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="skip-link">
           Skip to main content
         </a>
+        <InstallPrompt />
         {children}
         <ServiceWorkerRegister />
-        <InstallPrompt />
       </body>
     </html>
   );

@@ -14,7 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <AppNav isAdmin={isAdmin} email={email} />
       <main
         id="main"
-        className="mx-auto max-w-4xl px-4 py-6 pb-[calc(4.5rem+env(safe-area-inset-bottom))] sm:pb-6"
+        className="mx-auto max-w-4xl px-4 py-6 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-6"
       >
         {children}
       </main>
