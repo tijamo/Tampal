@@ -12,7 +12,7 @@
  * (see src/lib/offline-queue.ts) and replayed on reconnect; the SW just wakes
  * the app via the 'sync' event when Background Sync is available.
  */
-const CACHE = 'tamfam-shell-v1';
+const CACHE = 'tamfam-shell-v2';
 const SHELL = ['/', '/offline', '/manifest.webmanifest', '/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

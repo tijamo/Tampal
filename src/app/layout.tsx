@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Poppins } from 'next/font/google';
 import './globals.css';
 import { ServiceWorkerRegister } from '@/components/service-worker-register';
+import { InstallPrompt } from '@/components/install-prompt';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -23,6 +24,12 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: 'TamFam',
   },
+  // iOS ignores the manifest's icons for "Add to Home Screen" — it needs its
+  // own apple-touch-icon link.
+  icons: {
+    icon: '/icons/icon-192.png',
+    apple: '/icons/icon-192.png',
+  },
   formatDetection: { telephone: false },
 };
 
@@ -32,6 +39,9 @@ export const viewport: Viewport = {
   initialScale: 1,
   // Do not disable zoom — pinch-zoom is required for WCAG 1.4.4 / 1.4.10.
   maximumScale: 5,
+  // Lets fixed chrome (the mobile bottom nav) extend into notch/home-indicator
+  // safe areas instead of leaving a dead gap, via env(safe-area-inset-*).
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -43,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         {children}
         <ServiceWorkerRegister />
+        <InstallPrompt />
       </body>
     </html>
   );

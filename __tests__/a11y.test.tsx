@@ -2,6 +2,9 @@ import { render } from '@testing-library/react';
 import { axe } from 'jest-axe';
 import { Field, Button, Banner, Card, PageHeading } from '@/components/ui';
 import { ToggleSwitch } from '@/components/toggle-switch';
+import { BottomNav } from '@/components/bottom-nav';
+
+jest.mock('next/navigation', () => ({ usePathname: () => '/' }));
 
 describe('accessibility (jest-axe)', () => {
   it('a labelled form with an error has no violations', async () => {
@@ -43,6 +46,13 @@ describe('accessibility (jest-axe)', () => {
         <ToggleSwitch id="b" label="Not granted example" granted={false} onToggle={() => {}} />
       </main>,
     );
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('the mobile bottom nav, admin and non-admin, has no violations', async () => {
+    const { container, rerender } = render(<BottomNav isAdmin={false} />);
+    expect(await axe(container)).toHaveNoViolations();
+    rerender(<BottomNav isAdmin={true} />);
     expect(await axe(container)).toHaveNoViolations();
   });
 });

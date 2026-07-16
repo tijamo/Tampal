@@ -1,5 +1,6 @@
 import { requireSession } from '@/lib/auth';
 import { AppNav } from '@/components/app-nav';
+import { BottomNav } from '@/components/bottom-nav';
 
 /**
  * Layout for all authenticated pages. requireSession() redirects to /login when
@@ -11,9 +12,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <>
       <AppNav isAdmin={isAdmin} email={email} />
-      <main id="main" className="mx-auto max-w-4xl px-4 py-6">
+      <main
+        id="main"
+        className="mx-auto max-w-4xl px-4 py-6 pb-[calc(4.5rem+env(safe-area-inset-bottom))] sm:pb-6"
+      >
         {children}
       </main>
+      <BottomNav isAdmin={isAdmin} />
     </>
   );
 }

@@ -20,7 +20,7 @@ export function AppNav({ isAdmin, email }: { isAdmin: boolean; email: string | n
         <Link href="/" className="text-xl font-bold text-brand-700">
           TamFam
         </Link>
-        <nav aria-label="Primary" className="flex-1">
+        <nav aria-label="Primary" className="hidden flex-1 sm:block">
           <ul className="flex flex-wrap gap-1">
             {links
               .filter((l) => !l.adminOnly || isAdmin)
