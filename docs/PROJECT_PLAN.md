@@ -74,6 +74,19 @@ a live Supabase/Postgres instance, which isn't available in this
 environment; the self-hosted deploy path review (item 11) is complete.
 Working tree is clean at v0.1.10 on `main`.
 
+Considered and declined: standing up a Postgres-MCP bridge on the VPS
+(Coolify resource talking to the `db` service, exposed to Claude as a
+custom claude.ai connector) to unblock items 9/10 against the real
+self-hosted instance. Decided against it — a permanent, full-`postgres`-
+role, internet-reachable line into a GDPR-covered database is a lot of
+standing attack surface and maintenance for two lower-priority
+housekeeping items. Items 9/10 stay blocked and should instead be
+unblocked opportunistically from a session with a working Docker daemon,
+using a **disposable local stack** (`supabase start` or a throwaway
+`docker run postgres` with `supabase/migrations/*.sql` applied) — never
+production. Don't re-propose a remote DB connector for this; ask first if
+it comes up again.
+
 ## Roadmap
 
 ### Phase 1 — Core requirements from the product brief — ✅ DONE (v0.1.3)
