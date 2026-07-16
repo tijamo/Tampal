@@ -2,7 +2,7 @@
 
 A Progressive Web App for **Tamworth Christadelphian Church** to manage members
 and visitors, meetings, and attendance — installable on any phone or tablet,
-accessible to **WCAG 2.1 AA**, and built for **UK GDPR** compliance.
+accessible to **WCAG 2.2 AA**, and built for **UK GDPR** compliance.
 
 ## Why the GDPR design is the way it is
 
@@ -118,8 +118,19 @@ Regenerate the PWA icons with `node scripts/generate-icons.js`.
 
 Semantic landmarks and a skip link, labelled fields with associated errors,
 keyboard operability with visible focus, AA colour contrast, reduced-motion
-support, and ≥44px touch targets on the register. Automated checks use `jest-axe`;
-a manual keyboard/screen-reader pass is recommended before release.
+support, and ≥44px touch targets on the register. Automated checks use
+`jest-axe` plus an `axe-core` pass over the rendered pages.
+
+A WCAG 2.2 AA gap audit (2026-07-16) covered the six new 2.2 success criteria
+(2.4.11 Focus Not Obscured, 2.5.7 Dragging Movements, 2.5.8 Target Size
+Minimum, 3.2.6 Consistent Help, 3.3.7 Redundant Entry, 3.3.8 Accessible
+Authentication — all pass or N/A, see `docs/PROJECT_PLAN.md`) and a manual
+keyboard pass, which caught and fixed three pre-existing AA gaps: buttons,
+inputs and link-buttons had no visible keyboard focus indicator at all
+(2.4.7), the focus ring didn't meet 3:1 contrast in dark mode (1.4.11), and
+the consent/directory/role toggle switch had no accessible name and an
+under-contrast "off" state (4.1.2, 1.4.11). A full manual screen-reader pass
+is still recommended before release.
 
 ## A note on compliance
 

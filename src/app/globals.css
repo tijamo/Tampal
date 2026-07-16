@@ -6,7 +6,10 @@
   color-scheme: light dark;
 }
 
-/* Visible focus for keyboard users on every interactive element (WCAG 2.4.7). */
+/* Visible focus for keyboard users on every interactive element (WCAG 2.4.7).
+   brand-600 gives >= 3:1 non-text contrast (WCAG 1.4.11) against the light
+   background, but not against the dark one, so dark mode uses the lighter
+   brand-400 instead. */
 @layer base {
   :focus-visible {
     outline: 3px solid theme('colors.brand.600');
@@ -21,6 +24,10 @@
   @media (prefers-color-scheme: dark) {
     body {
       @apply bg-slate-950 text-slate-100;
+    }
+
+    :focus-visible {
+      outline-color: theme('colors.brand.400');
     }
   }
 }

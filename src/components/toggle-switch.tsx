@@ -29,6 +29,7 @@ export function ToggleSwitch({
       </label>
       <Switch.Root
         id={domId}
+        aria-label={label}
         checked={granted}
         disabled={pending}
         onCheckedChange={(checked) =>
@@ -36,7 +37,7 @@ export function ToggleSwitch({
             void onToggle(checked);
           })
         }
-        className="relative h-7 w-12 rounded-full bg-slate-300 data-[state=checked]:bg-brand-700 disabled:opacity-60 dark:bg-slate-600"
+        className="relative h-7 w-12 rounded-full bg-slate-500 data-[state=checked]:bg-brand-700 disabled:opacity-60"
       >
         <Switch.Thumb className="block h-6 w-6 translate-x-0.5 rounded-full bg-white transition-transform data-[state=checked]:translate-x-[22px]" />
       </Switch.Root>

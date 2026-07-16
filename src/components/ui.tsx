@@ -7,7 +7,7 @@ import type { ComponentProps, ReactNode } from 'react';
  */
 
 const base =
-  'inline-flex items-center justify-center gap-2 min-h-touch rounded-md px-4 py-2 text-base font-medium transition-colors focus-visible:outline-none disabled:opacity-60 disabled:cursor-not-allowed';
+  'inline-flex items-center justify-center gap-2 min-h-touch rounded-md px-4 py-2 text-base font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed';
 
 const variants = {
   primary: 'bg-brand-700 text-white hover:bg-brand-800',
@@ -97,7 +97,7 @@ export function Field({
         name={name}
         aria-describedby={[hintId, errId].filter(Boolean).join(' ') || undefined}
         aria-invalid={error ? true : undefined}
-        className="min-h-touch rounded-md border border-slate-400 bg-white px-3 py-2 text-slate-900 focus-visible:outline-none dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100"
+        className="min-h-touch rounded-md border border-slate-400 bg-white px-3 py-2 text-slate-900 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100"
         {...props}
       />
       {error && (

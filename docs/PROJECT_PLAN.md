@@ -80,7 +80,7 @@ All six landed together in `20527ec` (v0.1.3); see "What already exists"
 above for where each lives. `npm run typecheck`, `npm run lint`, and
 `npm test` all pass against this state.
 
-### Phase 2 — Compliance formalisation
+### Phase 2 — Compliance formalisation — ✅ DONE (v0.1.8)
 7. ✅ **UK GDPR / DPA 2018 / Data (Use and Access) Act 2025 review** (v0.1.6)
    - `/privacy` now cites the Data (Use and Access) Act 2025 alongside UK
      GDPR/DPA 2018, states plainly that we do no automated decision-making
@@ -90,15 +90,51 @@ above for where each lives. `npm run typecheck`, `npm run lint`, and
    - Wording is a starting point, not certified legal text — final
      sign-off is still a church-trustee decision (README already disclaims
      "not legal advice").
-8. **WCAG 2.2 AA gap audit** (next up)
-   - Check new 2.2 success criteria against current UI: 2.4.11 Focus Not
-     Obscured, 2.5.7 Dragging Movements (N/A — no drag interactions),
-     2.5.8 Target Size Minimum (already ≥44px, likely passes), 3.2.6
-     Consistent Help, 3.3.7 Redundant Entry, 3.3.8 Accessible
-     Authentication (magic-link already satisfies this well).
-   - Do a manual keyboard/screen-reader pass (README already flags this as
-     outstanding) and record results.
-   - Update README's "WCAG 2.1 AA" claim to "2.2 AA" once verified.
+8. ✅ **WCAG 2.2 AA gap audit** (v0.1.8)
+   - New 2.2 success criteria checked against current UI:
+     - 2.4.11 Focus Not Obscured — pass, no sticky/fixed chrome to obscure a
+       focused element (the erase-person dialog overlay is the only `fixed`
+       content, and it's the active surface itself, not an obstruction).
+     - 2.5.7 Dragging Movements — N/A, no drag interactions anywhere.
+     - 2.5.8 Target Size Minimum — pass. `Button`/`LinkButton`/`Field` are
+       ≥44px; radio/checkbox inputs are visually 20px but their wrapping
+       `<label>` is the full ≥44px hit target; `ToggleSwitch` is 28×48px
+       (above the 24×24 minimum, below the app's own 44px convention —
+       left as-is, a Radix primitive at a still-compliant size).
+     - 3.2.6 Consistent Help — N/A, no help/contact mechanism repeats across
+       pages.
+     - 3.3.7 Redundant Entry — N/A, no multi-step flows ask for previously
+       given information again.
+     - 3.3.8 Accessible Authentication — pass, magic-link sign-in has no
+       password or cognitive test.
+   - Manual keyboard pass (Playwright + `axe-core` against the rendered
+     `/login` and `/privacy` pages, plus contrast maths for dark mode) found
+     and fixed three real, pre-existing AA gaps, not just 2.2-specific ones:
+     1. **2.4.7 Focus Visible** — `Button`/`LinkButton`/`Field` all carried
+        `focus-visible:outline-none`, which in Tailwind compiles to
+        `outline: 2px solid transparent` — more specific than the site-wide
+        focus ring in `globals.css`, so it silently won and every button,
+        link-button and text input had **no visible keyboard focus
+        indicator at all**. Fix: dropped the redundant utility class.
+     2. **1.4.11 Non-text Contrast (dark mode)** — the focus ring colour
+        (`brand-600`) is 7.8:1 against the light background but only
+        ~2.3–2.6:1 against the dark one, below the 3:1 minimum. Fix: dark
+        mode now uses `brand-400` (~4.8–5.4:1) via a `prefers-color-scheme`
+        override in `globals.css`.
+     3. **4.1.2 Name, Role, Value + 1.4.11** — `ToggleSwitch` (used for
+        every consent/directory/role toggle) relied on `<label for>` for its
+        accessible name, which `axe-core`'s `button-name` rule (correctly)
+        doesn't credit for a `<button role="switch">` — AT support for that
+        association on buttons is inconsistent. Its unchecked track colour
+        was also only ~1.5:1 (light) / ~2.7:1 (dark) against the page
+        background. Fix: added `aria-label`, and swapped the unchecked
+        track to `slate-500` (~4.2–4.8:1 in both modes).
+   - Added an `a11y.test.tsx` case for `ToggleSwitch` (both states) so the
+     accessible-name fix has regression coverage; `npm run typecheck`,
+     `npm run lint`, `npm test` all pass.
+   - README's WCAG claim updated to 2.2 AA. A full manual screen-reader
+     pass is still recommended before release — not something this audit
+     substitutes for.
 
 ### Phase 3 — Housekeeping (lower priority, do opportunistically)
 9. Expand test coverage: RLS-backed CRUD flows, invite flow, consent logic,
@@ -109,14 +145,14 @@ above for where each lives. `npm run typecheck`, `npm run lint`, and
 11. Revisit self-hosted Supabase/Coolify deploy path hardening given the
     history of Kong/auth/schema-permission fix commits.
 
-## Files most relevant to Phase 2
+## Files most relevant to Phase 3
 
-- `src/app/privacy/page.tsx` — privacy notice copy to extend with DUA 2025
-  references and a complaints-handling section.
-- `README.md` — disclaims "not legal advice"; also carries the "WCAG 2.1 AA"
-  claim to update once the 2.2 audit lands.
-- `__tests__/a11y.test.tsx` — existing `jest-axe` coverage to extend for
-  `/profile`, `/directory`, and the meeting edit page.
+- `__tests__/a11y.test.tsx`, `__tests__/recurrence.test.ts` — only existing
+  test coverage; item 9 extends this to RLS-backed flows, invite flow,
+  consent logic, offline queue/sync.
+- `src/lib/supabase/types.ts` — hand-maintained today; item 10 replaces it
+  with `supabase gen types typescript` output.
+- `self-hosting/` — Coolify/Kong deploy path; item 11.
 
 ## Verification checklist (per phase)
 
