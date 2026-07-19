@@ -12,7 +12,7 @@
  * (see src/lib/offline-queue.ts) and replayed on reconnect; the SW just wakes
  * the app via the 'sync' event when Background Sync is available.
  */
-const CACHE = 'tamfam-shell-v2';
+const CACHE = 'tamfam-shell-v3';
 const SHELL = ['/', '/offline', '/manifest.webmanifest', '/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {
@@ -62,8 +62,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Same-origin static assets: stale-while-revalidate.
-  if (url.origin === self.location.origin) {
+  // Same-origin static assets only: stale-while-revalidate. Everything else
+  // (RSC/flight-data fetches for client-side navigation and router.refresh(),
+  // API routes, etc.) must go straight to the network so mutations show up
+  // without a hard refresh.
+  const isStaticAsset =
+    url.pathname.startsWith('/_next/static/') ||
+    url.pathname.startsWith('/icons/') ||
+    url.pathname === '/manifest.webmanifest';
+
+  if (url.origin === self.location.origin && isStaticAsset) {
     event.respondWith(
       caches.match(request).then((cached) => {
         const network = fetch(request)
