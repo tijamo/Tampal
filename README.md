@@ -63,6 +63,7 @@ in order:
 - `supabase/migrations/0003_grants.sql` — table grants (self-hosted only)
 - `supabase/migrations/0004_self_service.sql` — invite/person linking
 - `supabase/migrations/0005_self_service_rls.sql` — self-service RLS/RPCs
+- `supabase/migrations/0006_split_full_name.sql` — split `full_name` into `first_name`/`surname`
 
 Either run them via the Supabase SQL editor, or with the CLI:
 

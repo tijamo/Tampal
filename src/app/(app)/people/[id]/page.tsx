@@ -8,6 +8,7 @@ import { ErasePerson } from '@/components/erase-person';
 import { InvitePerson } from '@/components/invite-person';
 import { setConsent, setUserRole } from '../actions';
 import { latestConsent } from '@/lib/consent';
+import { personName } from '@/lib/person';
 import type { Person, Consent, Profile } from '@/lib/supabase/types';
 
 export const metadata: Metadata = { title: 'Person' };
@@ -46,7 +47,7 @@ export default async function PersonDetailPage({ params }: { params: { id: strin
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <PageHeading>{p.full_name}</PageHeading>
+          <PageHeading>{personName(p)}</PageHeading>
           <p className="mt-1 capitalize text-slate-600 dark:text-slate-400">{p.person_type}</p>
         </div>
         <LinkButton variant="secondary" href={`/people/${p.id}/edit`}>
@@ -137,7 +138,7 @@ export default async function PersonDetailPage({ params }: { params: { id: strin
             <LinkButton variant="secondary" href={`/api/people/${p.id}/export`}>
               Export data (JSON)
             </LinkButton>
-            <ErasePerson personId={p.id} personName={p.full_name} />
+            <ErasePerson personId={p.id} personName={personName(p)} />
           </div>
         </Card>
       </section>

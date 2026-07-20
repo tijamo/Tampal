@@ -8,7 +8,7 @@ import { Banner } from '@/components/ui';
 
 export interface RegisterPerson {
   id: string;
-  full_name: string;
+  name: string;
   present: boolean;
 }
 
@@ -109,7 +109,7 @@ export function AttendanceRegister({
                       : 'border-slate-300 bg-white text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
                   }`}
                 >
-                  <span className="font-medium">{p.full_name}</span>
+                  <span className="font-medium">{p.name}</span>
                   <span className="flex items-center gap-2">
                     {s === 'queued' && <span className="text-xs text-amber-700">queued</span>}
                     {s === 'error' && <span className="text-xs text-red-700">retry</span>}

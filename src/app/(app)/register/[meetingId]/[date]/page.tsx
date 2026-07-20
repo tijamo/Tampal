@@ -5,6 +5,7 @@ import { requireSession } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { PageHeading } from '@/components/ui';
 import { AttendanceRegister, type RegisterPerson } from '@/components/attendance-register';
+import { personName } from '@/lib/person';
 import type { Meeting, Attendance } from '@/lib/supabase/types';
 
 export const metadata: Metadata = { title: 'Attendance register' };
@@ -32,7 +33,11 @@ export default async function RegisterPage({
   // attendance-consent, so any authenticated user can take the register
   // without needing raw access to the `people`/`consents` tables.
   const [{ data: peopleRows }, { data: attendanceRows }] = await Promise.all([
-    supabase.from('register_eligible_people').select('*').order('full_name'),
+    supabase
+      .from('register_eligible_people')
+      .select('*')
+      .order('surname', { nullsFirst: false })
+      .order('first_name'),
     supabase
       .from('attendance')
       .select('*')
@@ -40,13 +45,14 @@ export default async function RegisterPage({
       .eq('occurrence_date', params.date),
   ]);
 
-  const people = (peopleRows as { id: string; full_name: string }[]) ?? [];
+  const people =
+    (peopleRows as { id: string; first_name: string; surname: string | null }[]) ?? [];
   const attendance = (attendanceRows as Attendance[]) ?? [];
   const presentSet = new Set(attendance.filter((a) => a.present).map((a) => a.person_id));
 
   const register: RegisterPerson[] = people.map((p) => ({
     id: p.id,
-    full_name: p.full_name,
+    name: personName(p),
     present: presentSet.has(p.id),
   }));
 

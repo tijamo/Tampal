@@ -8,7 +8,8 @@ export type ConsentType = 'attendance_records' | 'contact_storage' | 'directory_
 
 export interface Person {
   id: string;
-  full_name: string;
+  first_name: string;
+  surname: string | null;
   person_type: PersonType;
   email: string | null;
   phone: string | null;

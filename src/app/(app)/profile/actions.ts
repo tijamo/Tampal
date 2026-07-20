@@ -26,12 +26,13 @@ export async function updateOwnProfile(
     return { error: 'Your account is not linked to a member record. Contact an administrator.' };
   }
 
-  const full_name = str(form, 'full_name');
-  if (!full_name) return { error: 'A name is required.' };
+  const first_name = str(form, 'first_name');
+  if (!first_name) return { error: 'A first name is required.' };
 
   const supabase = createClient();
   const { error } = await supabase.rpc('update_own_contact_details', {
-    p_full_name: full_name,
+    p_first_name: first_name,
+    p_surname: str(form, 'surname'),
     p_email: str(form, 'email'),
     p_phone: str(form, 'phone'),
     p_address_line1: str(form, 'address_line1'),

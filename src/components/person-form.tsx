@@ -40,11 +40,17 @@ export function PersonForm({
 
       <Card className="flex flex-col gap-4">
         <Field
-          label="Full name"
-          name="full_name"
+          label="First name"
+          name="first_name"
           required
-          autoComplete="name"
-          defaultValue={person?.full_name ?? ''}
+          autoComplete="given-name"
+          defaultValue={person?.first_name ?? ''}
+        />
+        <Field
+          label="Surname"
+          name="surname"
+          autoComplete="family-name"
+          defaultValue={person?.surname ?? ''}
         />
         <fieldset className="flex flex-col gap-2">
           <legend className="font-medium">This person is a</legend>

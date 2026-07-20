@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { requireAdmin } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { LinkButton, Card, PageHeading } from '@/components/ui';
+import { personName } from '@/lib/person';
 import type { Person } from '@/lib/supabase/types';
 
 export const metadata: Metadata = { title: 'People' };
@@ -15,7 +16,8 @@ export default async function PeoplePage() {
     .from('people')
     .select('*')
     .is('deleted_at', null)
-    .order('full_name');
+    .order('surname', { nullsFirst: false })
+    .order('first_name');
   const people = (data as Person[]) ?? [];
 
   const members = people.filter((p) => p.person_type === 'member');
@@ -47,12 +49,12 @@ function PeopleGroup({ title, people }: { title: string; people: Person[] }) {
           {people.map((p) => (
             <li key={p.id}>
               <Card className="flex items-center justify-between gap-3 py-3">
-                <span className="font-medium">{p.full_name}</span>
+                <span className="font-medium">{personName(p)}</span>
                 <Link
                   href={`/people/${p.id}`}
                   className="inline-flex min-h-touch items-center rounded-md px-3 text-brand-700 underline"
                 >
-                  View<span className="sr-only"> {p.full_name}</span>
+                  View<span className="sr-only"> {personName(p)}</span>
                 </Link>
               </Card>
             </li>

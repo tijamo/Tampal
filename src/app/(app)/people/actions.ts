@@ -49,8 +49,9 @@ export async function createPerson(
   const { userId } = await requireAdmin();
   const supabase = createClient();
 
-  const full_name = str(form, 'full_name');
-  if (!full_name) return { error: 'A name is required.' };
+  const first_name = str(form, 'first_name');
+  if (!first_name) return { error: 'A first name is required.' };
+  const surname = str(form, 'surname');
 
   const person_type = (form.get('person_type') as PersonType) ?? 'visitor';
   const attendanceConsent = form.get('consent_attendance') === 'on';
@@ -59,7 +60,8 @@ export async function createPerson(
   const { data, error } = await supabase
     .from('people')
     .insert({
-      full_name,
+      first_name,
+      surname,
       person_type,
       email: str(form, 'email'),
       phone: str(form, 'phone'),
@@ -89,14 +91,16 @@ export async function updatePerson(
   await requireAdmin();
   const supabase = createClient();
   const id = form.get('id') as string;
-  const full_name = str(form, 'full_name');
+  const first_name = str(form, 'first_name');
   if (!id) return { error: 'Missing person id.' };
-  if (!full_name) return { error: 'A name is required.' };
+  if (!first_name) return { error: 'A first name is required.' };
+  const surname = str(form, 'surname');
 
   const { error } = await supabase
     .from('people')
     .update({
-      full_name,
+      first_name,
+      surname,
       person_type: (form.get('person_type') as PersonType) ?? 'visitor',
       email: str(form, 'email'),
       phone: str(form, 'phone'),
@@ -136,7 +140,8 @@ export async function erasePerson(personId: string) {
   await supabase
     .from('people')
     .update({
-      full_name: 'Erased record',
+      first_name: 'Erased record',
+      surname: null,
       email: null,
       phone: null,
       address_line1: null,

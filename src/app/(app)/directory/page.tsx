@@ -3,13 +3,15 @@ import Link from 'next/link';
 import { requireSession } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { Card, PageHeading } from '@/components/ui';
+import { personName } from '@/lib/person';
 import type { PersonType } from '@/lib/supabase/types';
 
 export const metadata: Metadata = { title: 'Directory' };
 
 interface DirectoryEntry {
   id: string;
-  full_name: string;
+  first_name: string;
+  surname: string | null;
   person_type: PersonType;
   phone: string | null;
   email: string | null;
@@ -19,7 +21,11 @@ export default async function DirectoryPage() {
   await requireSession();
   const supabase = createClient();
 
-  const { data } = await supabase.from('people_directory').select('*').order('full_name');
+  const { data } = await supabase
+    .from('people_directory')
+    .select('*')
+    .order('surname', { nullsFirst: false })
+    .order('first_name');
   const people = (data as DirectoryEntry[]) ?? [];
   const members = people.filter((p) => p.person_type === 'member');
   const visitors = people.filter((p) => p.person_type === 'visitor');
@@ -55,7 +61,7 @@ function DirectoryGroup({ title, people }: { title: string; people: DirectoryEnt
           {people.map((p) => (
             <li key={p.id}>
               <Card className="flex flex-col gap-1 py-3">
-                <span className="font-medium">{p.full_name}</span>
+                <span className="font-medium">{personName(p)}</span>
                 {(p.phone || p.email) && (
                   <span className="text-sm text-slate-600 dark:text-slate-400">
                     {[p.phone, p.email].filter(Boolean).join(' · ')}

@@ -13,7 +13,7 @@ describe('accessibility (jest-axe)', () => {
       <main>
         <PageHeading>Add a person</PageHeading>
         <form aria-label="Add person">
-          <Field label="Full name" name="full_name" required />
+          <Field label="First name" name="first_name" required />
           <Field
             label="Email"
             name="email"
