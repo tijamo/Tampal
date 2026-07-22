@@ -111,9 +111,18 @@ manual Supabase-dashboard invite above is only needed for this first admin.
 | `npm run build`     | Production build                                   |
 | `npm run typecheck` | TypeScript check (`tsc --noEmit`)                  |
 | `npm run lint`      | ESLint (`next lint`)                               |
-| `npm test`          | Jest — recurrence unit tests + `jest-axe` a11y     |
+| `npm test`          | Jest — unit/a11y tests + RLS integration suite     |
 
 Regenerate the PWA icons with `node scripts/generate-icons.js`.
+
+### RLS integration tests
+
+`__tests__/rls/rls.test.ts` runs the real Postgres RLS policies, grants,
+views and SECURITY DEFINER functions from `supabase/migrations/*.sql`
+against a throwaway local Postgres cluster (`__tests__/rls/harness.ts`
+runs `initdb`/`pg_ctl` directly — no Docker/Supabase CLI needed). It
+requires local Postgres server binaries (`initdb`, `pg_ctl`); if none are
+found it skips itself with a warning rather than failing `npm test`.
 
 ## Accessibility
 
