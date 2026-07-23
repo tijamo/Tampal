@@ -441,6 +441,50 @@ d("Row-Level Security policies", () => {
         ]),
       ).rejects.toThrow(/invalid consent type/i);
     });
+
+    it("accepts directory_hidden, removing the caller entirely from people_directory", async () => {
+      const before = await cluster.queryAs(
+        registerTakerUser,
+        `select id from people_directory where id = $1`,
+        [registerTakerPerson],
+      );
+      expect(before.rows).toEqual([{ id: registerTakerPerson }]);
+
+      await cluster.queryAs(registerTakerUser, `select set_own_directory_consent($1, $2)`, [
+        "directory_hidden",
+        true,
+      ]);
+
+      const after = await cluster.queryAs(
+        adminUser,
+        `select id from people_directory where id = $1`,
+        [registerTakerPerson],
+      );
+      expect(after.rows).toEqual([]);
+    });
+
+    it("lets an admin hide someone else from the directory directly (no self-service RPC needed for admins)", async () => {
+      const before = await cluster.queryAs(
+        memberUser,
+        `select id from people_directory where id = $1`,
+        [otherPerson],
+      );
+      expect(before.rows).toEqual([{ id: otherPerson }]);
+
+      await cluster.queryAs(
+        adminUser,
+        `insert into consents (person_id, consent_type, granted, granted_at, captured_by)
+           values ($1, 'directory_hidden', true, now(), $2)`,
+        [otherPerson, adminUser],
+      );
+
+      const after = await cluster.queryAs(
+        memberUser,
+        `select id from people_directory where id = $1`,
+        [otherPerson],
+      );
+      expect(after.rows).toEqual([]);
+    });
   });
 
   describe("erase_person_data RPC", () => {

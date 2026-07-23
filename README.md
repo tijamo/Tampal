@@ -72,6 +72,8 @@ in order:
 - `supabase/migrations/0012_self_service_erasure.sql` — shared erase_person_data() RPC for admin and self-service GDPR erasure
 - `supabase/migrations/0013_directory_consent_types.sql` — adds `directory_phone`/`directory_email`/`directory_address` consent types (enum values only)
 - `supabase/migrations/0014_granular_directory_consent.sql` — splits directory sharing into independent phone/email/address consent, exposes address on `people_directory`
+- `supabase/migrations/0015_directory_hidden_consent_type.sql` — adds the `directory_hidden` consent type (enum value only)
+- `supabase/migrations/0016_directory_hidden_rls.sql` — excludes anyone with `directory_hidden` granted from `people_directory` entirely
 
 Either run them via the Supabase SQL editor, or with the CLI:
 

@@ -54,8 +54,19 @@ export default async function ProfilePage() {
         <h2 id="directory-heading" className="mb-2 text-xl font-semibold">
           Directory listing
         </h2>
+        <Card className="mb-3">
+          <ToggleSwitch
+            id="directory-hidden"
+            label="Hide me from the member directory entirely"
+            granted={latestConsent(consents, 'directory_hidden')}
+            onToggle={setOwnDirectoryConsent.bind(null, 'directory_hidden')}
+            onLabel="Hidden"
+            offLabel="Visible"
+          />
+        </Card>
         <p className="mb-2 text-sm text-slate-600 dark:text-slate-400">
-          Each of these is independent &mdash; sharing one doesn&rsquo;t share the others.
+          If you&rsquo;re listed, each of these is independent &mdash; sharing one doesn&rsquo;t
+          share the others.
         </p>
         <Card className="flex flex-col divide-y divide-slate-200 dark:divide-slate-800">
           <ToggleSwitch

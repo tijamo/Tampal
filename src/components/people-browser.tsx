@@ -44,7 +44,7 @@ function renderItem(p: BrowsablePerson, variant: Variant): ReactNode {
   }
   const address = [p.address_line1, p.address_line2, p.city, p.postcode].filter(Boolean).join(', ');
   return (
-    <Card className="flex flex-col gap-1 py-3">
+    <Card className="flex h-full flex-col gap-1 py-3">
       <span className="font-medium">{personName(p)}</span>
       {(p.phone || p.email) && (
         <span className="text-sm text-slate-600 dark:text-slate-400">
@@ -295,7 +295,13 @@ function PersonGroup<T extends BrowsablePerson>({
       {people.length === 0 ? (
         <p className="text-slate-600 dark:text-slate-400">None.</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul
+          className={
+            variant === 'directory'
+              ? 'flex flex-col gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-3'
+              : 'flex flex-col gap-2'
+          }
+        >
           {people.map((p) => (
             <li key={p.id}>{renderItem(p, variant)}</li>
           ))}

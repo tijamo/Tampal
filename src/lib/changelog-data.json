@@ -1,5 +1,11 @@
 [
   {
+    "version": "0.2.18",
+    "message": "Split directory consent into phone/email/address, add address to directory",
+    "date": "2026-07-23T16:03:26+00:00",
+    "hash": "3c53f66"
+  },
+  {
     "version": "0.2.17",
     "message": "Add self-service GDPR export/erasure to Profile",
     "date": "2026-07-23T15:55:51+00:00",

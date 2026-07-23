@@ -13,10 +13,15 @@ export type ConsentType =
   | 'directory_listing'
   | 'directory_phone'
   | 'directory_email'
-  | 'directory_address';
+  | 'directory_address'
+  | 'directory_hidden';
 
 /** The subset of ConsentType that set_own_directory_consent() accepts. */
-export type DirectoryConsentType = 'directory_phone' | 'directory_email' | 'directory_address';
+export type DirectoryConsentType =
+  | 'directory_phone'
+  | 'directory_email'
+  | 'directory_address'
+  | 'directory_hidden';
 
 export interface Person {
   id: string;
