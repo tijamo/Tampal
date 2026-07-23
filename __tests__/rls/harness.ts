@@ -124,6 +124,8 @@ export async function startRlsCluster(): Promise<RlsCluster> {
       "0014_granular_directory_consent.sql",
       "0015_directory_hidden_consent_type.sql",
       "0016_directory_hidden_rls.sql",
+      "0017_directory_visible_consent_type.sql",
+      "0018_directory_visible_rls.sql",
     ]) {
       await admin.query(loadMigrationSql(file));
     }

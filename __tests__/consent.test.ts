@@ -42,4 +42,16 @@ describe('latestConsent', () => {
     ];
     expect(latestConsent(consents, 'attendance_records')).toBe(false);
   });
+
+  it('uses the given defaultValue when there is no history (e.g. directory_visible defaults to true)', () => {
+    expect(latestConsent([], 'directory_visible', true)).toBe(true);
+  });
+
+  it('an explicit decision always overrides the default, in either direction', () => {
+    const hidden = [consent({ consent_type: 'directory_visible', granted: false })];
+    expect(latestConsent(hidden, 'directory_visible', true)).toBe(false);
+
+    const shown = [consent({ consent_type: 'attendance_records', granted: true })];
+    expect(latestConsent(shown, 'attendance_records', false)).toBe(true);
+  });
 });

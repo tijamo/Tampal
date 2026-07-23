@@ -56,12 +56,10 @@ export default async function ProfilePage() {
         </h2>
         <Card className="mb-3">
           <ToggleSwitch
-            id="directory-hidden"
-            label="Hide me from the member directory entirely"
-            granted={latestConsent(consents, 'directory_hidden')}
-            onToggle={setOwnDirectoryConsent.bind(null, 'directory_hidden')}
-            onLabel="Hidden"
-            offLabel="Visible"
+            id="directory-visible"
+            label="Show me in the member directory"
+            granted={latestConsent(consents, 'directory_visible', true)}
+            onToggle={setOwnDirectoryConsent.bind(null, 'directory_visible')}
           />
         </Card>
         <p className="mb-2 text-sm text-slate-600 dark:text-slate-400">

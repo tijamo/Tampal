@@ -72,8 +72,10 @@ in order:
 - `supabase/migrations/0012_self_service_erasure.sql` — shared erase_person_data() RPC for admin and self-service GDPR erasure
 - `supabase/migrations/0013_directory_consent_types.sql` — adds `directory_phone`/`directory_email`/`directory_address` consent types (enum values only)
 - `supabase/migrations/0014_granular_directory_consent.sql` — splits directory sharing into independent phone/email/address consent, exposes address on `people_directory`
-- `supabase/migrations/0015_directory_hidden_consent_type.sql` — adds the `directory_hidden` consent type (enum value only)
-- `supabase/migrations/0016_directory_hidden_rls.sql` — excludes anyone with `directory_hidden` granted from `people_directory` entirely
+- `supabase/migrations/0015_directory_hidden_consent_type.sql` — adds the `directory_hidden` consent type (enum value only, retired by 0017/0018)
+- `supabase/migrations/0016_directory_hidden_rls.sql` — excludes anyone with `directory_hidden` granted from `people_directory` entirely (retired by 0017/0018)
+- `supabase/migrations/0017_directory_visible_consent_type.sql` — adds `directory_visible` (enum value only), replacing `directory_hidden`'s inverted polarity
+- `supabase/migrations/0018_directory_visible_rls.sql` — `people_directory` now keys visibility off `directory_visible` (default true), consistent with phone/email/address's granted-means-shown polarity
 
 Either run them via the Supabase SQL editor, or with the CLI:
 

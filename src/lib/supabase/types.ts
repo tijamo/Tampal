@@ -4,9 +4,9 @@
 export type Role = 'admin' | 'member' | 'register_taker';
 export type PersonType = 'member' | 'visitor';
 export type Recurrence = 'none' | 'weekly' | 'monthly' | 'annually';
-// directory_listing is retired (superseded by the three granular directory_*
-// types below) but stays in the union since historical consent rows still
-// carry it and Postgres enum values can't be removed.
+// directory_listing and directory_hidden are retired (superseded by the
+// granular directory_* types below) but stay in the union since historical
+// consent rows still carry them and Postgres enum values can't be removed.
 export type ConsentType =
   | 'attendance_records'
   | 'contact_storage'
@@ -14,14 +14,15 @@ export type ConsentType =
   | 'directory_phone'
   | 'directory_email'
   | 'directory_address'
-  | 'directory_hidden';
+  | 'directory_hidden'
+  | 'directory_visible';
 
 /** The subset of ConsentType that set_own_directory_consent() accepts. */
 export type DirectoryConsentType =
   | 'directory_phone'
   | 'directory_email'
   | 'directory_address'
-  | 'directory_hidden';
+  | 'directory_visible';
 
 export interface Person {
   id: string;

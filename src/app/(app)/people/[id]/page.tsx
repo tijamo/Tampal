@@ -165,12 +165,10 @@ export default async function PersonDetailPage({ params }: { params: { id: strin
             onToggle={setConsent.bind(null, p.id, 'contact_storage')}
           />
           <ToggleSwitch
-            id="directory_hidden"
-            label="Hide from the member directory entirely"
-            granted={latestConsent(consents, 'directory_hidden')}
-            onToggle={setConsent.bind(null, p.id, 'directory_hidden')}
-            onLabel="Hidden"
-            offLabel="Visible"
+            id="directory_visible"
+            label="Show in the member directory"
+            granted={latestConsent(consents, 'directory_visible', true)}
+            onToggle={setConsent.bind(null, p.id, 'directory_visible')}
           />
         </Card>
       </section>

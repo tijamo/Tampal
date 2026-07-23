@@ -442,7 +442,7 @@ d("Row-Level Security policies", () => {
       ).rejects.toThrow(/invalid consent type/i);
     });
 
-    it("accepts directory_hidden, removing the caller entirely from people_directory", async () => {
+    it("accepts directory_visible=false, removing the caller entirely from people_directory", async () => {
       const before = await cluster.queryAs(
         registerTakerUser,
         `select id from people_directory where id = $1`,
@@ -451,8 +451,8 @@ d("Row-Level Security policies", () => {
       expect(before.rows).toEqual([{ id: registerTakerPerson }]);
 
       await cluster.queryAs(registerTakerUser, `select set_own_directory_consent($1, $2)`, [
-        "directory_hidden",
-        true,
+        "directory_visible",
+        false,
       ]);
 
       const after = await cluster.queryAs(
@@ -473,8 +473,8 @@ d("Row-Level Security policies", () => {
 
       await cluster.queryAs(
         adminUser,
-        `insert into consents (person_id, consent_type, granted, granted_at, captured_by)
-           values ($1, 'directory_hidden', true, now(), $2)`,
+        `insert into consents (person_id, consent_type, granted, withdrawn_at, captured_by)
+           values ($1, 'directory_visible', false, now(), $2)`,
         [otherPerson, adminUser],
       );
 
@@ -484,6 +484,19 @@ d("Row-Level Security policies", () => {
         [otherPerson],
       );
       expect(after.rows).toEqual([]);
+
+      await cluster.queryAs(
+        adminUser,
+        `insert into consents (person_id, consent_type, granted, granted_at, captured_by)
+           values ($1, 'directory_visible', true, now(), $2)`,
+        [otherPerson, adminUser],
+      );
+      const reshown = await cluster.queryAs(
+        memberUser,
+        `select id from people_directory where id = $1`,
+        [otherPerson],
+      );
+      expect(reshown.rows).toEqual([{ id: otherPerson }]);
     });
   });
 
