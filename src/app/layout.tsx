@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google';
 import './globals.css';
 import { ServiceWorkerRegister } from '@/components/service-worker-register';
 import { InstallPrompt } from '@/components/install-prompt';
+import { THEME_INIT_SCRIPT } from '@/lib/theme-script';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -50,6 +51,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-GB" className={poppins.variable}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body>
         <a href="#main" className="skip-link">
           Skip to main content

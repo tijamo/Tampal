@@ -7,6 +7,9 @@ import type { Config } from 'tailwindcss';
  * church's maroon brand colour (see logo).
  */
 const config: Config = {
+  // Manual (class-based) instead of the default media-query strategy, so a
+  // user can pick Light/Dark/Auto rather than always following the OS.
+  darkMode: 'class',
   content: ['./src/**/*.{ts,tsx}'],
   theme: {
     extend: {

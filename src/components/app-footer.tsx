@@ -4,6 +4,7 @@ import { useTransition } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import changelog from '@/lib/changelog-data.json';
 import { setViewMode } from '@/app/(app)/view-mode-actions';
+import { ThemeToggle } from '@/components/theme-toggle';
 import type { ViewMode } from '@/lib/auth';
 
 const version = process.env.NEXT_PUBLIC_APP_VERSION ?? 'dev';
@@ -64,6 +65,7 @@ export function AppFooter({
           </div>
         </div>
       )}
+      <ThemeToggle />
       <Dialog.Root>
         <Dialog.Trigger asChild>
           <button

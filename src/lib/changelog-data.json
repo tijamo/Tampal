@@ -1,5 +1,11 @@
 [
   {
+    "version": "0.2.23",
+    "message": "Flip directory visibility toggle to match the other consents' polarity",
+    "date": "2026-07-23T19:29:01+00:00",
+    "hash": "bece196"
+  },
+  {
     "version": "0.2.22",
     "message": "Add admin audit log viewer and CSV export",
     "date": "2026-07-23T16:44:00+00:00",
