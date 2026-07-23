@@ -1,5 +1,11 @@
 [
   {
+    "version": "0.2.11",
+    "message": "Surface families query errors instead of silently showing \"No families yet\"",
+    "date": "2026-07-23T13:33:09+00:00",
+    "hash": "e9bbd37"
+  },
+  {
     "version": "0.2.10",
     "message": "Document migrations 0007 and 0008 in the setup README",
     "date": "2026-07-23T11:21:08+00:00",

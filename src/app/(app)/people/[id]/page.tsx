@@ -33,7 +33,11 @@ export default async function PersonDetailPage({ params }: { params: { id: strin
       supabase.from('consents').select('*').eq('person_id', p.id),
       supabase.from('profiles').select('user_id, role').eq('person_id', p.id).maybeSingle(),
       p.family_id
-        ? supabase.from('families').select('*, people(*)').eq('id', p.family_id).maybeSingle()
+        ? supabase
+            .from('families')
+            .select('*, people!people_family_id_fkey(*)')
+            .eq('id', p.family_id)
+            .maybeSingle()
         : Promise.resolve({ data: null }),
     ]);
   const consents = (consentRows as Consent[]) ?? [];

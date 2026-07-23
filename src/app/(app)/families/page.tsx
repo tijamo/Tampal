@@ -16,7 +16,10 @@ export default async function FamiliesPage() {
 
   const { data, error } = await supabase
     .from('families')
-    .select('*, people(*)')
+    // Disambiguated: families has two FKs to people (membership via
+    // people.family_id, and primary_contact_person_id) so a bare
+    // "people(*)" embed is ambiguous to PostgREST.
+    .select('*, people!people_family_id_fkey(*)')
     .order('name');
   const families = (data as FamilyWithMembers[]) ?? [];
 
