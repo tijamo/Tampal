@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.2.10",
+    "message": "Document migrations 0007 and 0008 in the setup README",
+    "date": "2026-07-23T11:21:08+00:00",
+    "hash": "42db4dc"
+  },
+  {
+    "version": "0.2.9",
+    "message": "Add family grouping, CHMeetings import, and version/changelog footer",
+    "date": "2026-07-23T09:40:42+00:00",
+    "hash": "172cf45"
+  },
+  {
     "version": "0.2.8",
     "message": "Add RLS integration test suite; lock down maintenance RPCs",
     "date": "2026-07-22T22:55:37+00:00",
