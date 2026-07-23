@@ -176,29 +176,17 @@ export async function setConsent(personId: string, type: ConsentType, granted: b
 }
 
 /**
- * GDPR erasure. Soft-deletes the person, strips contact PII immediately, and
+ * GDPR erasure. Soft-deletes the person, strips all PII immediately, and
  * anonymises their attendance (kept for aggregate records but no longer
- * identifiable). A scheduled purge later removes the tombstone row entirely.
+ * identifiable, since the linked person row's name is gone). A scheduled
+ * purge later removes the tombstone row entirely. Delegates to the
+ * erase_person_data() RPC, shared with self-service erasure on /profile, so
+ * there's exactly one field list to keep in sync with the schema.
  */
 export async function erasePerson(personId: string) {
   await requireAdmin();
   const supabase = createClient();
-
-  await supabase
-    .from('people')
-    .update({
-      first_name: 'Erased record',
-      surname: null,
-      email: null,
-      phone: null,
-      address_line1: null,
-      address_line2: null,
-      city: null,
-      postcode: null,
-      notes: null,
-      deleted_at: new Date().toISOString(),
-    })
-    .eq('id', personId);
+  await supabase.rpc('erase_person_data', { p_person_id: personId });
 
   revalidatePath('/people');
   redirect('/people');

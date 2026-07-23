@@ -8,7 +8,7 @@ import { ToggleSwitch } from '@/components/toggle-switch';
 import { RoleSelect } from '@/components/role-select';
 import { ErasePerson } from '@/components/erase-person';
 import { InvitePerson } from '@/components/invite-person';
-import { setConsent } from '../actions';
+import { setConsent, erasePerson } from '../actions';
 import { latestConsent } from '@/lib/consent';
 import { personName } from '@/lib/person';
 import type { Person, Consent, Profile, Family } from '@/lib/supabase/types';
@@ -204,7 +204,11 @@ export default async function PersonDetailPage({ params }: { params: { id: strin
             <LinkButton variant="secondary" href={`/api/people/${p.id}/export`}>
               Export data (JSON)
             </LinkButton>
-            <ErasePerson personId={p.id} personName={personName(p)} />
+            <ErasePerson
+              personName={personName(p)}
+              action={erasePerson.bind(null, p.id)}
+              description={`This permanently removes ${personName(p)}’s contact details and anonymises their attendance records. This cannot be undone.`}
+            />
           </div>
         </Card>
       </section>

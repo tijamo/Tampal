@@ -416,6 +416,75 @@ d("Row-Level Security policies", () => {
     });
   });
 
+  describe("erase_person_data RPC", () => {
+    it("blocks a member from erasing someone else's data", async () => {
+      await expect(
+        cluster.queryAs(memberUser, `select erase_person_data($1)`, [otherPerson]),
+      ).rejects.toThrow(/only erase your own data/i);
+
+      const { rows } = await cluster.querySuper(`select first_name from people where id = $1`, [
+        otherPerson,
+      ]);
+      expect(rows[0].first_name).toBe("Carol");
+    });
+
+    it("blocks a user with no linked person record from erasing anything", async () => {
+      await expect(
+        cluster.queryAs(unlinkedUser, `select erase_person_data($1)`, [memberPerson]),
+      ).rejects.toThrow(/only erase your own data/i);
+    });
+
+    it("lets a member erase their own data, clearing PII, tags and family_id, and soft-deleting", async () => {
+      const selfErasePerson = randomUUID();
+      const selfEraseUser = randomUUID();
+      await cluster.querySuper(`insert into auth.users (id) values ($1)`, [selfEraseUser]);
+      const { rows: familyRows } = await cluster.querySuper(
+        `insert into families (name) values ('The Eraseme Family') returning id`,
+      );
+      await cluster.querySuper(
+        `insert into people (id, first_name, surname, person_type, email, tags, family_id)
+           values ($1, 'Erin', 'Eraseme', 'member', 'erin@example.com', array['Members'], $2)`,
+        [selfErasePerson, familyRows[0].id],
+      );
+      await cluster.querySuper(
+        `update profiles set person_id = $2, role = 'member' where user_id = $1`,
+        [selfEraseUser, selfErasePerson],
+      );
+
+      await cluster.queryAs(selfEraseUser, `select erase_person_data($1)`, [selfErasePerson]);
+
+      const { rows } = await cluster.querySuper(
+        `select first_name, surname, email, tags, family_id, deleted_at is not null as erased
+           from people where id = $1`,
+        [selfErasePerson],
+      );
+      expect(rows[0]).toEqual({
+        first_name: "Erased record",
+        surname: null,
+        email: null,
+        tags: [],
+        family_id: null,
+        erased: true,
+      });
+    });
+
+    it("lets an admin erase anyone's data", async () => {
+      const targetPerson = randomUUID();
+      await cluster.querySuper(
+        `insert into people (id, first_name, person_type, email) values ($1, 'Temp', 'visitor', 'temp@example.com')`,
+        [targetPerson],
+      );
+
+      await cluster.queryAs(adminUser, `select erase_person_data($1)`, [targetPerson]);
+
+      const { rows } = await cluster.querySuper(
+        `select first_name, email from people where id = $1`,
+        [targetPerson],
+      );
+      expect(rows[0]).toEqual({ first_name: "Erased record", email: null });
+    });
+  });
+
   describe("people_directory / register_eligible_people views", () => {
     const visitorId = randomUUID();
 

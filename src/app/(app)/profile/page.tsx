@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { requireSession } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
-import { PageHeading, Card, Banner } from '@/components/ui';
+import { PageHeading, Card, Banner, LinkButton } from '@/components/ui';
 import { ProfileForm } from '@/components/profile-form';
 import { ToggleSwitch } from '@/components/toggle-switch';
-import { setOwnDirectoryConsent } from './actions';
+import { ErasePerson } from '@/components/erase-person';
+import { setOwnDirectoryConsent, eraseSelf } from './actions';
 import { latestConsent } from '@/lib/consent';
+import { personName } from '@/lib/person';
 import type { Person, Consent } from '@/lib/supabase/types';
 
 export const metadata: Metadata = { title: 'My profile' };
@@ -59,6 +61,29 @@ export default async function ProfilePage() {
             granted={latestConsent(consents, 'directory_listing')}
             onToggle={setOwnDirectoryConsent}
           />
+        </Card>
+      </section>
+
+      <section aria-labelledby="rights-heading">
+        <h2 id="rights-heading" className="mb-2 text-xl font-semibold">
+          Your data rights
+        </h2>
+        <Card className="flex flex-col gap-4">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Download a full copy of everything we hold about you, or request erasure. Erasing your
+            data signs you out and cannot be undone.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <LinkButton variant="secondary" href={`/api/people/${profile.person_id}/export`}>
+              Download my data (JSON)
+            </LinkButton>
+            <ErasePerson
+              personName={personName(person as Person)}
+              action={eraseSelf}
+              description="This permanently removes your contact details and anonymises your attendance records, then signs you out. This cannot be undone."
+              triggerLabel="Erase my data"
+            />
+          </div>
         </Card>
       </section>
     </div>

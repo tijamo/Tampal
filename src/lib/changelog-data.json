@@ -1,5 +1,11 @@
 [
   {
+    "version": "0.2.16",
+    "message": "Fix People/Directory crash; add register_taker role",
+    "date": "2026-07-23T15:08:50+00:00",
+    "hash": "319d676"
+  },
+  {
     "version": "0.2.15",
     "message": "Gate Meetings behind admin access",
     "date": "2026-07-23T14:47:29+00:00",

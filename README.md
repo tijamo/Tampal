@@ -69,6 +69,7 @@ in order:
 - `supabase/migrations/0009_directory_family_id.sql` — expose `family_id` on `people_directory` for the directory's family view
 - `supabase/migrations/0010_register_taker_role.sql` — adds the `register_taker` role (enum value only)
 - `supabase/migrations/0011_register_taker_rls.sql` — narrows attendance access to admin/register_taker, restores self-read
+- `supabase/migrations/0012_self_service_erasure.sql` — shared erase_person_data() RPC for admin and self-service GDPR erasure
 
 Either run them via the Supabase SQL editor, or with the CLI:
 

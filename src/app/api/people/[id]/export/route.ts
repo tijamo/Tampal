@@ -3,8 +3,10 @@ import { createClient } from '@/lib/supabase/server';
 
 /**
  * GDPR Subject Access / portability export: returns everything we hold about one
- * person as a downloadable JSON file. Admin-only (enforced by both the RLS
- * policies on the underlying tables and this explicit check).
+ * person as a downloadable JSON file. An admin may export anyone; a member may
+ * only export their own linked record (enforced here, and independently by the
+ * RLS policies on the underlying tables -- a self export relies on people_select
+ * and consents_read_own/attendance_read_own already scoping reads to "own row").
  */
 export async function GET(
   _request: NextRequest,
@@ -19,10 +21,10 @@ export async function GET(
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, person_id')
     .eq('user_id', user.id)
     .maybeSingle();
-  if (profile?.role !== 'admin') {
+  if (profile?.role !== 'admin' && profile?.person_id !== params.id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

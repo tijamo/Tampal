@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { requireSession } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 
@@ -59,4 +60,22 @@ export async function setOwnDirectoryConsent(granted: boolean) {
 
   revalidatePath('/profile');
   revalidatePath('/directory');
+}
+
+/**
+ * GDPR self-service erasure (Article 17). Shares erase_person_data() with
+ * the admin erasure action (see 0012_self_service_erasure.sql) -- the RPC
+ * itself enforces "admin, or your own record", not this check. Signs the
+ * caller out afterwards since there's nothing meaningful left in their
+ * account once their personal data is gone.
+ */
+export async function eraseSelf() {
+  const { profile } = await requireSession();
+  if (!profile?.person_id) return;
+
+  const supabase = createClient();
+  await supabase.rpc('erase_person_data', { p_person_id: profile.person_id });
+  await supabase.auth.signOut();
+
+  redirect('/login');
 }
