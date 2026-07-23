@@ -6,7 +6,7 @@ import { HomeIcon, CalendarIcon, DirectoryIcon, PeopleIcon, ProfileIcon } from '
 
 const links = [
   { href: '/', label: 'Home', icon: HomeIcon, adminOnly: false },
-  { href: '/meetings', label: 'Meetings', icon: CalendarIcon, adminOnly: false },
+  { href: '/meetings', label: 'Meetings', icon: CalendarIcon, adminOnly: true },
   { href: '/directory', label: 'Directory', icon: DirectoryIcon, adminOnly: false },
   { href: '/people', label: 'People', icon: PeopleIcon, adminOnly: true },
   { href: '/profile', label: 'Profile', icon: ProfileIcon, adminOnly: false },
