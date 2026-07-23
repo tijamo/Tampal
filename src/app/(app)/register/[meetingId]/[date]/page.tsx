@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { requireSession } from '@/lib/auth';
+import { requireMeetingsAccess } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { PageHeading } from '@/components/ui';
 import { AttendanceRegister, type RegisterPerson } from '@/components/attendance-register';
@@ -17,7 +17,7 @@ export default async function RegisterPage({
 }: {
   params: { meetingId: string; date: string };
 }) {
-  await requireSession();
+  await requireMeetingsAccess();
   if (!DATE_RE.test(params.date)) notFound();
   const supabase = createClient();
 
@@ -30,7 +30,7 @@ export default async function RegisterPage({
   const m = meeting as Meeting;
 
   // register_eligible_people already filters to people with a granted
-  // attendance-consent, so any authenticated user can take the register
+  // attendance-consent, so an admin/register_taker can take the register
   // without needing raw access to the `people`/`consents` tables.
   const [{ data: peopleRows }, { data: attendanceRows }] = await Promise.all([
     supabase

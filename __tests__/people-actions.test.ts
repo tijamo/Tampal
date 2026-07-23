@@ -18,8 +18,10 @@ function asAdmin(userId = 'admin-1') {
     userId,
     email: 'admin@example.org',
     profile: null,
+    role: 'admin',
     isAdmin: true,
     isRealAdmin: true,
+    canAccessMeetings: true,
     viewMode: 'admin',
   });
 }
@@ -76,14 +78,24 @@ describe('setUserRole', () => {
     const update = jest.fn(() => ({ eq }));
     mockedCreateClient.mockReturnValue({ from: () => ({ update }) } as never);
 
-    await setUserRole('other-user', 'person-2', true);
+    await setUserRole('other-user', 'person-2', 'admin');
 
     expect(update).toHaveBeenCalledWith({ role: 'admin' });
     expect(eq).toHaveBeenCalledWith('user_id', 'other-user');
   });
 
+  it('can promote a user to register_taker', async () => {
+    const eq = jest.fn().mockResolvedValue({ error: null });
+    const update = jest.fn(() => ({ eq }));
+    mockedCreateClient.mockReturnValue({ from: () => ({ update }) } as never);
+
+    await setUserRole('other-user', 'person-2', 'register_taker');
+
+    expect(update).toHaveBeenCalledWith({ role: 'register_taker' });
+  });
+
   it("refuses to let an admin change their own role, so they can't lock themselves out", async () => {
-    await setUserRole('admin-1', 'person-1', false);
+    await setUserRole('admin-1', 'person-1', 'member');
     expect(mockedCreateClient).not.toHaveBeenCalled();
   });
 });

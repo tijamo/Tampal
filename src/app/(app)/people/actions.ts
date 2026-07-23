@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import type { ConsentType, PersonType } from '@/lib/supabase/types';
+import type { ConsentType, PersonType, Role } from '@/lib/supabase/types';
 
 export interface PersonFormState {
   error?: string;
@@ -232,19 +232,16 @@ export async function invitePerson(personId: string, email: string): Promise<Inv
 }
 
 /**
- * Grants or revokes admin rights on an already-linked user. Refuses to let an
- * admin change their own role here, so they can't accidentally lock
- * themselves out.
+ * Sets an already-linked user's role (member / register_taker / admin).
+ * Refuses to let an admin change their own role here, so they can't
+ * accidentally lock themselves out.
  */
-export async function setUserRole(targetUserId: string, personId: string, isAdmin: boolean) {
+export async function setUserRole(targetUserId: string, personId: string, role: Role) {
   const { userId } = await requireAdmin();
   if (targetUserId === userId) return;
 
   const supabase = createClient();
-  await supabase
-    .from('profiles')
-    .update({ role: isAdmin ? 'admin' : 'member' })
-    .eq('user_id', targetUserId);
+  await supabase.from('profiles').update({ role }).eq('user_id', targetUserId);
 
   revalidatePath(`/people/${personId}`);
 }

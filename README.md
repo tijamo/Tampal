@@ -66,6 +66,9 @@ in order:
 - `supabase/migrations/0006_split_full_name.sql` — split `full_name` into `first_name`/`surname`
 - `supabase/migrations/0007_lock_down_maintenance_rpcs.sql` — revoke public execute on the retention RPCs
 - `supabase/migrations/0008_families_and_import_fields.sql` — `families` table, family membership, and extra person fields for the CHMeetings import
+- `supabase/migrations/0009_directory_family_id.sql` — expose `family_id` on `people_directory` for the directory's family view
+- `supabase/migrations/0010_register_taker_role.sql` — adds the `register_taker` role (enum value only)
+- `supabase/migrations/0011_register_taker_rls.sql` — narrows attendance access to admin/register_taker, restores self-read
 
 Either run them via the Supabase SQL editor, or with the CLI:
 

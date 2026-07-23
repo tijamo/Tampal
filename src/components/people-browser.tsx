@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo, useState, type ReactNode } from 'react';
+import Link from 'next/link';
+import { Card } from '@/components/ui';
 import { personName } from '@/lib/person';
 import type { PersonType } from '@/lib/supabase/types';
 
@@ -10,6 +12,42 @@ export interface BrowsablePerson {
   surname: string | null;
   person_type: PersonType;
   family_id: string | null;
+  phone?: string | null;
+  email?: string | null;
+}
+
+/**
+ * Next.js can't pass an arbitrary function (e.g. a render-prop) from a Server
+ * Component into a Client Component -- only serializable data or Server
+ * Actions cross that boundary. So the two known layouts live here, chosen by
+ * a plain string, instead of being injected via a renderItem callback.
+ */
+type Variant = 'admin' | 'directory';
+
+function renderItem(p: BrowsablePerson, variant: Variant): ReactNode {
+  if (variant === 'admin') {
+    return (
+      <Card className="flex items-center justify-between gap-3 py-3">
+        <span className="font-medium">{personName(p)}</span>
+        <Link
+          href={`/people/${p.id}`}
+          className="inline-flex min-h-touch items-center rounded-md px-3 text-brand-700 underline"
+        >
+          View<span className="sr-only"> {personName(p)}</span>
+        </Link>
+      </Card>
+    );
+  }
+  return (
+    <Card className="flex flex-col gap-1 py-3">
+      <span className="font-medium">{personName(p)}</span>
+      {(p.phone || p.email) && (
+        <span className="text-sm text-slate-600 dark:text-slate-400">
+          {[p.phone, p.email].filter(Boolean).join(' · ')}
+        </span>
+      )}
+    </Card>
+  );
 }
 
 type SortBy = 'surname' | 'surname-desc' | 'first_name' | 'first_name-desc';
@@ -46,11 +84,11 @@ function surnameLetter(p: BrowsablePerson): string {
 export function PeopleBrowser<T extends BrowsablePerson>({
   people,
   families,
-  renderItem,
+  variant,
 }: {
   people: T[];
   families: { id: string; name: string }[];
-  renderItem: (person: T) => ReactNode;
+  variant: Variant;
 }) {
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortBy>('surname');
@@ -101,7 +139,7 @@ export function PeopleBrowser<T extends BrowsablePerson>({
             const groupPeople = [...groups.get(key)!].sort((a, b) => compare(a, b, sortBy));
             const title = key === '__none__' ? 'No family' : familyNames.get(key) ?? 'Unknown family';
             return (
-              <PersonGroup key={key} title={title} people={groupPeople} renderItem={renderItem} />
+              <PersonGroup key={key} title={title} people={groupPeople} variant={variant} />
             );
           })
         )}
@@ -162,8 +200,8 @@ export function PeopleBrowser<T extends BrowsablePerson>({
         })}
       </div>
 
-      <PersonGroup title="Members" people={members} renderItem={renderItem} />
-      <PersonGroup title="Visitors" people={visitors} renderItem={renderItem} />
+      <PersonGroup title="Members" people={members} variant={variant} />
+      <PersonGroup title="Visitors" people={visitors} variant={variant} />
     </div>
   );
 }
@@ -236,11 +274,11 @@ function Controls({
 function PersonGroup<T extends BrowsablePerson>({
   title,
   people,
-  renderItem,
+  variant,
 }: {
   title: string;
   people: T[];
-  renderItem: (person: T) => ReactNode;
+  variant: Variant;
 }) {
   const headingId = `${title.replace(/\s+/g, '-').toLowerCase()}-heading`;
   return (
@@ -253,7 +291,7 @@ function PersonGroup<T extends BrowsablePerson>({
       ) : (
         <ul className="flex flex-col gap-2">
           {people.map((p) => (
-            <li key={p.id}>{renderItem(p)}</li>
+            <li key={p.id}>{renderItem(p, variant)}</li>
           ))}
         </ul>
       )}

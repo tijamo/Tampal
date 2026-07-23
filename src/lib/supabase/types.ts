@@ -1,7 +1,7 @@
 // Hand-written types mirroring the Supabase schema (supabase/migrations).
 // Regenerate with `supabase gen types typescript` once the CLI is set up.
 
-export type Role = 'admin' | 'member';
+export type Role = 'admin' | 'member' | 'register_taker';
 export type PersonType = 'member' | 'visitor';
 export type Recurrence = 'none' | 'weekly' | 'monthly' | 'annually';
 export type ConsentType = 'attendance_records' | 'contact_storage' | 'directory_listing';

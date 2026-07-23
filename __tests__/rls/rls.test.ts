@@ -37,20 +37,23 @@ d("Row-Level Security policies", () => {
   const otherUser = randomUUID();
   const otherPerson = randomUUID();
   const unlinkedUser = randomUUID(); // authenticated but no profiles.person_id
+  const registerTakerUser = randomUUID();
+  const registerTakerPerson = randomUUID();
 
   beforeAll(async () => {
     cluster = await startRlsCluster();
 
     await cluster.querySuper(
-      `insert into auth.users (id) values ($1), ($2), ($3)`,
-      [adminUser, memberUser, otherUser],
+      `insert into auth.users (id) values ($1), ($2), ($3), ($4)`,
+      [adminUser, memberUser, otherUser, registerTakerUser],
     );
     await cluster.querySuper(
       `insert into people (id, first_name, surname, person_type) values
          ($1, 'Alice', 'Admin', 'member'),
          ($2, 'Bob', 'Member', 'member'),
-         ($3, 'Carol', 'Other', 'member')`,
-      [adminPerson, memberPerson, otherPerson],
+         ($3, 'Carol', 'Other', 'member'),
+         ($4, 'Dana', 'Doorkeeper', 'member')`,
+      [adminPerson, memberPerson, otherPerson, registerTakerPerson],
     );
     await cluster.querySuper(
       `update profiles set person_id = $2, role = 'admin' where user_id = $1`,
@@ -59,6 +62,10 @@ d("Row-Level Security policies", () => {
     await cluster.querySuper(
       `update profiles set person_id = $2, role = 'member' where user_id = $1`,
       [memberUser, memberPerson],
+    );
+    await cluster.querySuper(
+      `update profiles set person_id = $2, role = 'register_taker' where user_id = $1`,
+      [registerTakerUser, registerTakerPerson],
     );
     await cluster.querySuper(
       `update profiles set person_id = $2, role = 'member' where user_id = $1`,
@@ -76,7 +83,7 @@ d("Row-Level Security policies", () => {
     it("lets an admin see every person", async () => {
       const { rows } = await cluster.queryAs(adminUser, `select id from people order by id`);
       expect(rows.map((r) => r.id).sort()).toEqual(
-        [adminPerson, memberPerson, otherPerson].sort(),
+        [adminPerson, memberPerson, otherPerson, registerTakerPerson].sort(),
       );
     });
 
@@ -235,18 +242,49 @@ d("Row-Level Security policies", () => {
       );
     });
 
-    it("documents the product tradeoff: any authenticated member can read another person's attendance", async () => {
+    it("blocks a plain member from reading another person's attendance", async () => {
       const { rows } = await cluster.queryAs(
         memberUser,
         `select person_id from attendance where meeting_id = $1 and person_id = $2`,
         [meetingId, otherPerson],
       );
-      expect(rows).toEqual([{ person_id: otherPerson }]);
+      expect(rows).toEqual([]);
     });
 
-    it("documents the tradeoff: a member can record attendance for someone else, including forging recorded_by", async () => {
-      const { rowCount } = await cluster.queryAs(
+    it("blocks a plain member from recording attendance", async () => {
+      await expect(
+        cluster.queryAs(
+          memberUser,
+          `insert into attendance (meeting_id, occurrence_date, person_id, present)
+             values ($1, $2, $3, true)`,
+          [meetingId, "2026-01-19", memberPerson],
+        ),
+      ).rejects.toThrow(PERMISSION_DENIED);
+    });
+
+    it("still lets a member read their own attendance (data subject access, unaffected by register_taker)", async () => {
+      await cluster.querySuper(
+        `insert into attendance (meeting_id, occurrence_date, person_id) values ($1, $2, $3)`,
+        [meetingId, "2026-01-26", memberPerson],
+      );
+      const { rows } = await cluster.queryAs(
         memberUser,
+        `select person_id from attendance where meeting_id = $1 and occurrence_date = $2`,
+        [meetingId, "2026-01-26"],
+      );
+      expect(rows).toEqual([{ person_id: memberPerson }]);
+    });
+
+    it("lets a register_taker read and record anyone's attendance, including forging recorded_by", async () => {
+      const { rows: readRows } = await cluster.queryAs(
+        registerTakerUser,
+        `select person_id from attendance where meeting_id = $1 and person_id = $2`,
+        [meetingId, otherPerson],
+      );
+      expect(readRows).toEqual([{ person_id: otherPerson }]);
+
+      const { rowCount } = await cluster.queryAs(
+        registerTakerUser,
         `insert into attendance (meeting_id, occurrence_date, person_id, present, recorded_by)
            values ($1, $2, $3, true, $4)`,
         [meetingId, "2026-01-12", adminPerson, adminUser],
@@ -254,9 +292,9 @@ d("Row-Level Security policies", () => {
       expect(rowCount).toBe(1);
     });
 
-    it("still blocks a non-admin from deleting attendance", async () => {
+    it("still blocks a register_taker from deleting attendance (admin-only)", async () => {
       const { rowCount } = await cluster.queryAs(
-        memberUser,
+        registerTakerUser,
         `delete from attendance where meeting_id = $1 and person_id = $2`,
         [meetingId, otherPerson],
       );

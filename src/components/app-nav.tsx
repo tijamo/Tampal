@@ -4,14 +4,22 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const links = [
-  { href: '/', label: 'Home', adminOnly: false },
-  { href: '/meetings', label: 'Meetings', adminOnly: true },
-  { href: '/directory', label: 'Directory', adminOnly: false },
-  { href: '/people', label: 'People', adminOnly: true },
-  { href: '/profile', label: 'My profile', adminOnly: false },
-];
+  { href: '/', label: 'Home', access: 'all' },
+  { href: '/meetings', label: 'Meetings', access: 'meetings' },
+  { href: '/directory', label: 'Directory', access: 'all' },
+  { href: '/people', label: 'People', access: 'admin' },
+  { href: '/profile', label: 'My profile', access: 'all' },
+] as const;
 
-export function AppNav({ isAdmin, email }: { isAdmin: boolean; email: string | null }) {
+export function AppNav({
+  isAdmin,
+  canAccessMeetings,
+  email,
+}: {
+  isAdmin: boolean;
+  canAccessMeetings: boolean;
+  email: string | null;
+}) {
   const pathname = usePathname();
 
   return (
@@ -23,7 +31,9 @@ export function AppNav({ isAdmin, email }: { isAdmin: boolean; email: string | n
         <nav aria-label="Primary" className="hidden flex-1 sm:block">
           <ul className="flex flex-wrap gap-1">
             {links
-              .filter((l) => !l.adminOnly || isAdmin)
+              .filter(
+                (l) => l.access === 'all' || (l.access === 'admin' && isAdmin) || (l.access === 'meetings' && canAccessMeetings),
+              )
               .map((l) => {
                 const active = l.href === '/' ? pathname === '/' : pathname.startsWith(l.href);
                 return (

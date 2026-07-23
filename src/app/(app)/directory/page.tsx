@@ -2,9 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { requireSession } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
-import { Card, PageHeading } from '@/components/ui';
+import { PageHeading } from '@/components/ui';
 import { PeopleBrowser } from '@/components/people-browser';
-import { personName } from '@/lib/person';
 import type { Family, PersonType } from '@/lib/supabase/types';
 
 export const metadata: Metadata = { title: 'Directory' };
@@ -42,20 +41,7 @@ export default async function DirectoryPage() {
         .
       </p>
 
-      <PeopleBrowser
-        people={people}
-        families={families}
-        renderItem={(p) => (
-          <Card className="flex flex-col gap-1 py-3">
-            <span className="font-medium">{personName(p)}</span>
-            {(p.phone || p.email) && (
-              <span className="text-sm text-slate-600 dark:text-slate-400">
-                {[p.phone, p.email].filter(Boolean).join(' · ')}
-              </span>
-            )}
-          </Card>
-        )}
-      />
+      <PeopleBrowser people={people} families={families} variant="directory" />
     </div>
   );
 }

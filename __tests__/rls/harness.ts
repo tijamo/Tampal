@@ -117,6 +117,8 @@ export async function startRlsCluster(): Promise<RlsCluster> {
       "0007_lock_down_maintenance_rpcs.sql",
       "0008_families_and_import_fields.sql",
       "0009_directory_family_id.sql",
+      "0010_register_taker_role.sql",
+      "0011_register_taker_rls.sql",
     ]) {
       await admin.query(loadMigrationSql(file));
     }

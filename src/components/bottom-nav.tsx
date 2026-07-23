@@ -5,20 +5,28 @@ import { usePathname } from 'next/navigation';
 import { HomeIcon, CalendarIcon, DirectoryIcon, PeopleIcon, ProfileIcon } from './icons';
 
 const links = [
-  { href: '/', label: 'Home', icon: HomeIcon, adminOnly: false },
-  { href: '/meetings', label: 'Meetings', icon: CalendarIcon, adminOnly: true },
-  { href: '/directory', label: 'Directory', icon: DirectoryIcon, adminOnly: false },
-  { href: '/people', label: 'People', icon: PeopleIcon, adminOnly: true },
-  { href: '/profile', label: 'Profile', icon: ProfileIcon, adminOnly: false },
-];
+  { href: '/', label: 'Home', icon: HomeIcon, access: 'all' },
+  { href: '/meetings', label: 'Meetings', icon: CalendarIcon, access: 'meetings' },
+  { href: '/directory', label: 'Directory', icon: DirectoryIcon, access: 'all' },
+  { href: '/people', label: 'People', icon: PeopleIcon, access: 'admin' },
+  { href: '/profile', label: 'Profile', icon: ProfileIcon, access: 'all' },
+] as const;
 
 /**
  * Thumb-reachable tab bar for small screens, mirroring AppNav's links.
  * Hidden at sm+ where the top nav's link list takes over instead.
  */
-export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
+export function BottomNav({
+  isAdmin,
+  canAccessMeetings,
+}: {
+  isAdmin: boolean;
+  canAccessMeetings: boolean;
+}) {
   const pathname = usePathname();
-  const items = links.filter((l) => !l.adminOnly || isAdmin);
+  const items = links.filter(
+    (l) => l.access === 'all' || (l.access === 'admin' && isAdmin) || (l.access === 'meetings' && canAccessMeetings),
+  );
 
   return (
     <nav

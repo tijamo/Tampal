@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { requireAdmin } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
-import { LinkButton, Card, PageHeading } from '@/components/ui';
+import { LinkButton, PageHeading } from '@/components/ui';
 import { PeopleBrowser } from '@/components/people-browser';
-import { personName } from '@/lib/person';
 import type { Family, Person } from '@/lib/supabase/types';
 
 export const metadata: Metadata = { title: 'People' };
@@ -35,21 +33,7 @@ export default async function PeoplePage() {
         </div>
       </div>
 
-      <PeopleBrowser
-        people={people}
-        families={families}
-        renderItem={(p) => (
-          <Card className="flex items-center justify-between gap-3 py-3">
-            <span className="font-medium">{personName(p)}</span>
-            <Link
-              href={`/people/${p.id}`}
-              className="inline-flex min-h-touch items-center rounded-md px-3 text-brand-700 underline"
-            >
-              View<span className="sr-only"> {personName(p)}</span>
-            </Link>
-          </Card>
-        )}
-      />
+      <PeopleBrowser people={people} families={families} variant="admin" />
     </div>
   );
 }

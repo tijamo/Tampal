@@ -25,9 +25,7 @@ const people: TestPerson[] = [
 const families = [{ id: 'fam-1', name: 'The Cresswell Family' }];
 
 function renderBrowser(list = people) {
-  render(
-    <PeopleBrowser people={list} families={families} renderItem={(p) => <span>{p.first_name}</span>} />,
-  );
+  render(<PeopleBrowser people={list} families={families} variant="directory" />);
 }
 
 describe('PeopleBrowser', () => {
@@ -35,20 +33,20 @@ describe('PeopleBrowser', () => {
     renderBrowser();
     const membersSection = screen.getByRole('heading', { name: /Members/ }).closest('section')!;
     const names = within(membersSection).getAllByRole('listitem').map((li) => li.textContent);
-    // Ashby, Cresswell (Ann), Cresswell (Peter), Nora (no surname sorts first/last per localeCompare of '')
-    expect(names).toEqual(['Nora', 'Bob', 'Ann', 'Peter']);
+    // No surname sorts first (empty string), then Ashby, then Cresswell x2 (stable: Ann before Peter).
+    expect(names).toEqual(['Nora', 'Bob Ashby', 'Ann Cresswell', 'Peter Cresswell']);
 
     const visitorsSection = screen.getByRole('heading', { name: /Visitors/ }).closest('section')!;
-    expect(within(visitorsSection).getByText('Zoe')).toBeInTheDocument();
+    expect(within(visitorsSection).getByText('Zoe Young')).toBeInTheDocument();
   });
 
   it('filters by search query across all groups', () => {
     renderBrowser();
     fireEvent.change(screen.getByLabelText('Search'), { target: { value: 'cresswell' } });
-    expect(screen.getByText('Ann')).toBeInTheDocument();
-    expect(screen.getByText('Peter')).toBeInTheDocument();
-    expect(screen.queryByText('Bob')).not.toBeInTheDocument();
-    expect(screen.queryByText('Zoe')).not.toBeInTheDocument();
+    expect(screen.getByText('Ann Cresswell')).toBeInTheDocument();
+    expect(screen.getByText('Peter Cresswell')).toBeInTheDocument();
+    expect(screen.queryByText('Bob Ashby')).not.toBeInTheDocument();
+    expect(screen.queryByText('Zoe Young')).not.toBeInTheDocument();
   });
 
   it('filters by surname initial via the A-Z bar, disabling letters with no matches', () => {
@@ -59,13 +57,13 @@ describe('PeopleBrowser', () => {
     expect(qButton).toBeDisabled();
 
     fireEvent.click(cButton);
-    expect(screen.getByText('Ann')).toBeInTheDocument();
-    expect(screen.getByText('Peter')).toBeInTheDocument();
-    expect(screen.queryByText('Bob')).not.toBeInTheDocument();
+    expect(screen.getByText('Ann Cresswell')).toBeInTheDocument();
+    expect(screen.getByText('Peter Cresswell')).toBeInTheDocument();
+    expect(screen.queryByText('Bob Ashby')).not.toBeInTheDocument();
     expect(screen.queryByText('Nora')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'All' }));
-    expect(screen.getByText('Bob')).toBeInTheDocument();
+    expect(screen.getByText('Bob Ashby')).toBeInTheDocument();
   });
 
   it('sorts by first name when selected', () => {
@@ -73,7 +71,7 @@ describe('PeopleBrowser', () => {
     fireEvent.change(screen.getByLabelText('Sort'), { target: { value: 'first_name' } });
     const membersSection = screen.getByRole('heading', { name: /Members/ }).closest('section')!;
     const names = within(membersSection).getAllByRole('listitem').map((li) => li.textContent);
-    expect(names).toEqual(['Ann', 'Bob', 'Nora', 'Peter']);
+    expect(names).toEqual(['Ann Cresswell', 'Bob Ashby', 'Nora', 'Peter Cresswell']);
   });
 
   it('groups by family when the view is switched, with an unassigned bucket last', () => {
@@ -82,10 +80,10 @@ describe('PeopleBrowser', () => {
 
     const familySection = screen.getByRole('heading', { name: /The Cresswell Family/ }).closest('section')!;
     const familyNames = within(familySection).getAllByRole('listitem').map((li) => li.textContent);
-    expect(familyNames).toEqual(['Ann', 'Peter']);
+    expect(familyNames).toEqual(['Ann Cresswell', 'Peter Cresswell']);
 
     const noFamilySection = screen.getByRole('heading', { name: /No family/ }).closest('section')!;
     const noFamilyNames = within(noFamilySection).getAllByRole('listitem').map((li) => li.textContent);
-    expect(noFamilyNames.sort()).toEqual(['Bob', 'Nora', 'Zoe']);
+    expect(noFamilyNames.sort()).toEqual(['Bob Ashby', 'Nora', 'Zoe Young']);
   });
 });

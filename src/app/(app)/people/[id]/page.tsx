@@ -5,14 +5,20 @@ import { requireAdmin } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { LinkButton, Card, PageHeading } from '@/components/ui';
 import { ToggleSwitch } from '@/components/toggle-switch';
+import { RoleSelect } from '@/components/role-select';
 import { ErasePerson } from '@/components/erase-person';
 import { InvitePerson } from '@/components/invite-person';
-import { setConsent, setUserRole } from '../actions';
+import { setConsent } from '../actions';
 import { latestConsent } from '@/lib/consent';
 import { personName } from '@/lib/person';
 import type { Person, Consent, Profile, Family } from '@/lib/supabase/types';
 
 export const metadata: Metadata = { title: 'Person' };
+
+const ROLE_LABEL: Record<string, string> = {
+  admin: 'admin rights',
+  register_taker: 'register taker',
+};
 
 export default async function PersonDetailPage({ params }: { params: { id: string } }) {
   const { userId } = await requireAdmin();
@@ -170,14 +176,13 @@ export default async function PersonDetailPage({ params }: { params: { id: strin
             <>
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 This person has a login
-                {linkedProfile.role === 'admin' ? ' with admin rights' : ''}.
+                {linkedProfile.role !== 'member' ? ` (${ROLE_LABEL[linkedProfile.role]})` : ''}.
               </p>
               {linkedProfile.user_id !== userId && (
-                <ToggleSwitch
-                  id="admin-role"
-                  label="Admin rights"
-                  granted={linkedProfile.role === 'admin'}
-                  onToggle={setUserRole.bind(null, linkedProfile.user_id, p.id)}
+                <RoleSelect
+                  targetUserId={linkedProfile.user_id}
+                  personId={p.id}
+                  role={linkedProfile.role}
                 />
               )}
             </>
